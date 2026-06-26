@@ -3,9 +3,9 @@ package edu.uga.ces.model;
 import jakarta.persistence.*;
 
 /**
- * Movie entity — one Java object per row in the `movies` table.
- * JPA reads/writes this automatically; we never write SQL by hand for basic reads.
- * Column names that differ from the field name (snake_case in DB) are mapped with @Column.
+ * Movie entity, one Java object per row in the movies table.
+ * JPA reads/writes this automatically. we never write SQL by hand for basic reads.
+ * Column names that differ from the field name are mapped with @Column.
  */
 @Entity
 @Table(name = "movies")
@@ -35,7 +35,7 @@ public class Movie {
     @Column(name = "trailer_url")
     private String trailerUrl;
 
-    // Stored in the DB as a JSON-array string, e.g. ["2:00 PM","5:00 PM"].
+    // Stored in the DB as a JSON-array string, ex - ["2:00 PM","5:00 PM"].
     // We parse it into a real List<String> in the service before sending it out.
     @Column(columnDefinition = "TEXT")
     private String showtimes;

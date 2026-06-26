@@ -9,7 +9,7 @@ import java.util.Map;
 
 /**
  * Catches errors thrown anywhere in the app and turns them into the JSON
- * error shape the contract specifies: { "error": "...", "message": "..." }
+ * error shape (in our API contract): { "error": "...", "message": "..."" }
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {

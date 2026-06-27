@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Details - CES Cinema</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/movie-details.js" defer></script>
+</head>
+<body>
+<header class="topbar">
+    <nav class="nav-shell" aria-label="Primary navigation">
+        <a class="brand" href="/index.html" aria-label="CES Cinema home">
+            <span class="brand-mark">CES</span>
+            <span>CES Cinema</span>
+        </a>
+        <div class="nav-links">
+            <a class="nav-link" href="/index.html">Movies</a>
+            <a class="nav-link" href="/order-confirmation.html">Orders</a>
+        </div>
+    </nav>
+</header>
+
+<main class="page">
+    <div class="back-row">
+        <a class="button secondary" href="/index.html">Back to Movies</a>
+    </div>
+
+    <section id="detailsRoot" class="detail-layout" aria-live="polite">
+        <div class="loading-state">Loading movie details...</div>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <style>
+        :root {
+            color-scheme: light;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #1f2933;
+            background: #f4f6f8;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        main {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 40px 20px 56px;
+        }
+
+        .panel {
+            background: #ffffff;
+            border: 1px solid #d8dee6;
+            border-radius: 8px;
+            padding: 28px;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 30px;
+        }
+
+        .confirmation-number {
+            display: inline-block;
+            margin: 12px 0 26px;
+            padding: 8px 12px;
+            border: 1px solid #9ac7c2;
+            border-radius: 6px;
+            background: #e6f4f1;
+            color: #0f514d;
+            font-weight: 700;
+        }
+
+        .details {
+            display: grid;
+            gap: 14px;
+            margin: 0;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            gap: 16px;
+            padding: 14px 0;
+            border-top: 1px solid #e3e8ef;
+        }
+
+        .label {
+            color: #5d6b7a;
+            font-weight: 700;
+        }
+
+        .value {
+            font-weight: 700;
+        }
+
+        @media (max-width: 560px) {
+            .row {
+                grid-template-columns: 1fr;
+                gap: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+    <section class="panel">
+        <h1>Order Confirmed</h1>
+        <div id="confirmationNumber" class="confirmation-number"></div>
+
+        <dl class="details">
+            <div class="row">
+                <dt class="label">Movie</dt>
+                <dd id="movieTitle" class="value"></dd>
+            </div>
+            <div class="row">
+                <dt class="label">Showtime</dt>
+                <dd id="showtime" class="value"></dd>
+            </div>
+            <div class="row">
+                <dt class="label">Auditorium</dt>
+                <dd id="auditorium" class="value"></dd>
+            </div>
+            <div class="row">
+                <dt class="label">Seats</dt>
+                <dd id="seats" class="value"></dd>
+            </div>
+            <div class="row">
+                <dt class="label">Total Price</dt>
+                <dd id="total" class="value"></dd>
+            </div>
+        </dl>
+    </section>
+</main>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const defaults = {
+        title: "Dune: Part Two",
+        showtime: "2:00 PM",
+        auditorium: "Auditorium 1",
+        seats: "A1, A2, A3",
+        total: "36.00"
+    };
+
+    function textParam(name, fallback) {
+        const value = params.get(name);
+        return value && value.trim() ? value : fallback;
+    }
+
+    function formatTotal(value) {
+        const amount = Number(value);
+        return Number.isFinite(amount) ? `$${amount.toFixed(2)}` : value;
+    }
+
+    const confirmationNumber = textParam("confirmation", `CES-${Date.now().toString().slice(-8)}`);
+    const movieTitle = textParam("title", defaults.title);
+    const showtime = textParam("showtime", defaults.showtime);
+    const auditorium = textParam("auditorium", defaults.auditorium);
+    const seats = textParam("seats", defaults.seats);
+    const total = textParam("total", defaults.total);
+
+    document.getElementById("confirmationNumber").textContent = `Confirmation #${confirmationNumber}`;
+    document.getElementById("movieTitle").textContent = movieTitle;
+    document.getElementById("showtime").textContent = showtime;
+    document.getElementById("auditorium").textContent = auditorium;
+    document.getElementById("seats").textContent = seats;
+    document.getElementById("total").textContent = formatTotal(total);
+    document.title = `${confirmationNumber} - Order Confirmation`;
+</script>
+</body>
+</html>

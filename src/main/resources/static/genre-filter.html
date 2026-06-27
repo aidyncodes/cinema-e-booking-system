@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filter Movies by Genre</title>
+    <style>
+        :root {
+            color-scheme: light;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #1f2933;
+            background: #f4f6f8;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        main {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 32px 20px 48px;
+        }
+
+        h1 {
+            margin: 0 0 24px;
+            font-size: 30px;
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: end;
+            margin-bottom: 24px;
+            padding: 18px;
+            background: #ffffff;
+            border: 1px solid #d8dee6;
+            border-radius: 8px;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        select,
+        button {
+            min-height: 40px;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        select {
+            min-width: 220px;
+            border: 1px solid #b8c2cc;
+            padding: 0 10px;
+            background: #ffffff;
+        }
+
+        button {
+            border: 1px solid #0f766e;
+            padding: 0 16px;
+            background: #0f766e;
+            color: #ffffff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        button.secondary {
+            border-color: #9aa8b7;
+            background: #ffffff;
+            color: #1f2933;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+        }
+
+        .movie-card {
+            background: #ffffff;
+            border: 1px solid #d8dee6;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+        }
+
+        .poster {
+            width: 100%;
+            aspect-ratio: 2 / 3;
+            object-fit: cover;
+            background: #d7dde3;
+        }
+
+        .movie-body {
+            padding: 16px;
+        }
+
+        h2 {
+            margin: 0 0 8px;
+            font-size: 20px;
+        }
+
+        .meta {
+            margin: 0 0 12px;
+            color: #5d6b7a;
+            font-size: 14px;
+        }
+
+        .showtimes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .showtime {
+            border-radius: 999px;
+            padding: 5px 10px;
+            background: #eef2f6;
+            border: 1px solid #c8d1dc;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .message {
+            padding: 18px;
+            background: #ffffff;
+            border: 1px solid #d8dee6;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Movie Catalogue</h1>
+
+    <section class="toolbar">
+        <div>
+            <label for="genreFilter">Genre</label>
+            <select id="genreFilter">
+                <option value="">All genres</option>
+            </select>
+        </div>
+        <button id="applyFilter" type="button">Apply Filter</button>
+        <button id="resetFilter" class="secondary" type="button">Reset</button>
+    </section>
+
+    <section id="movies" class="grid" aria-live="polite"></section>
+</main>
+
+<script>
+    const genreFilter = document.getElementById("genreFilter");
+    const moviesContainer = document.getElementById("movies");
+    const applyFilter = document.getElementById("applyFilter");
+    const resetFilter = document.getElementById("resetFilter");
+
+    function parseShowtimes(value) {
+        if (!value) {
+            return [];
+        }
+
+        if (Array.isArray(value)) {
+            return value;
+        }
+
+        try {
+            const parsed = JSON.parse(value);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+            return value.split(",").map(item => item.trim()).filter(Boolean);
+        }
+    }
+
+    function renderMovies(movies) {
+        if (!movies.length) {
+            moviesContainer.className = "message";
+            moviesContainer.textContent = "No movies found.";
+            return;
+        }
+
+        moviesContainer.className = "grid";
+        moviesContainer.innerHTML = movies.map(movie => {
+            const showtimes = parseShowtimes(movie.showtimes)
+                .map(showtime => `<span class="showtime">${showtime}</span>`)
+                .join("");
+
+            return `
+                <article class="movie-card">
+                    <img class="poster" src="${movie.posterUrl || "https://placehold.co/300x450?text=Movie"}" alt="${movie.title} poster">
+                    <div class="movie-body">
+                        <h2>${movie.title}</h2>
+                        <p class="meta">${movie.genre} | ${movie.rating || "Not Rated"}</p>
+                        <div class="showtimes">${showtimes || "No showtimes listed"}</div>
+                    </div>
+                </article>
+            `;
+        }).join("");
+    }
+
+    async function loadGenres() {
+        const response = await fetch("/api/movies/genres");
+        const genres = await response.json();
+        [...new Set([...genres, "Documentary"])].sort((a, b) => a.localeCompare(b)).forEach(genre => {
+            const option = document.createElement("option");
+            option.value = genre;
+            option.textContent = genre;
+            genreFilter.appendChild(option);
+        });
+    }
+
+    async function loadMovies() {
+        const genre = genreFilter.value;
+        const url = genre ? `/api/movies?genre=${encodeURIComponent(genre)}` : "/api/movies";
+        moviesContainer.className = "message";
+        moviesContainer.textContent = "Loading movies...";
+
+        try {
+            const response = await fetch(url);
+            const movies = await response.json();
+            renderMovies(movies);
+        } catch (error) {
+            moviesContainer.textContent = "Could not load movies.";
+        }
+    }
+
+    applyFilter.addEventListener("click", loadMovies);
+    genreFilter.addEventListener("change", loadMovies);
+    resetFilter.addEventListener("click", () => {
+        genreFilter.value = "";
+        loadMovies();
+    });
+
+    loadGenres();
+    loadMovies();
+</script>
+</body>
+</html>
+
+

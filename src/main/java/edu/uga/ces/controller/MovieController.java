@@ -1,11 +1,9 @@
 package edu.uga.ces.controller;
 
-import edu.uga.ces.model.Movie;
-import edu.uga.ces.repository.MovieRepository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import edu.uga.ces.dto.MovieDetail;
+import edu.uga.ces.dto.MovieSummary;
+import edu.uga.ces.service.MovieService;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -13,25 +11,42 @@ import java.util.List;
 @RequestMapping("/api/movies")
 public class MovieController {
 
-    private static final String AVAILABLE_STATUS = "CURRENTLY_RUNNING";
+    private final MovieService movieService;
 
-    private final MovieRepository movieRepository;
-
-    public MovieController(MovieRepository movieRepository) {
-        this.movieRepository = movieRepository;
+    public MovieController(MovieService movieService) {
+        this.movieService = movieService;
     }
 
+    // Home page
     @GetMapping
-    public List<Movie> getAvailableMovies(@RequestParam(required = false) String genre) {
+    public List<MovieSummary> getCurrentlyRunning(@RequestParam(required = false) String genre) {
         if (genre == null || genre.isBlank()) {
-            return movieRepository.findByStatusOrderByTitleAsc(AVAILABLE_STATUS);
+            return movieService.getCurrentlyRunning();
         }
-
-        return movieRepository.findByGenreIgnoreCaseAndStatusOrderByTitleAsc(genre.trim(), AVAILABLE_STATUS);
+        return movieService.getCurrentlyRunningByGenre(genre);
     }
 
+    // home page: coming soon section
+    @GetMapping("/coming-soon")
+    public List<MovieSummary> getComingSoon() {
+        return movieService.getComingSoon();
+    }
+
+    // genre list for filter dropdown
     @GetMapping("/genres")
-    public List<String> getAvailableGenres() {
-        return movieRepository.findDistinctGenresByStatus(AVAILABLE_STATUS);
+    public List<String> getGenres() {
+        return movieService.getCurrentlyRunningGenres();
+    }
+
+    // search by title, returns [] if nothing matches
+    @GetMapping("/search")
+    public List<MovieSummary> search(@RequestParam String title) {
+        return movieService.searchByTitle(title);
+    }
+
+    // movie detail page (full info incl. parsed showtimes + trailer).
+    @GetMapping("/{id}")
+    public MovieDetail getMovieById(@PathVariable Long id) {
+        return movieService.getMovieById(id);
     }
 }

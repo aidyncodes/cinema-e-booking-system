@@ -22,9 +22,9 @@ public class Movie {
     private String genre;
 
     @Column(nullable = false)
-    private String status; // "CURRENTLY_RUNNING" or "COMING_SOON"
+    private String status;
 
-    private String rating; // MPAA code: G, PG, PG-13, R, NC-17
+    private String rating;
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -35,8 +35,8 @@ public class Movie {
     @Column(name = "trailer_url")
     private String trailerUrl;
 
-    // Stored in the DB as a JSON-array string, ex - ["2:00 PM","5:00 PM"].
-    // We parse it into a real List<String> in the service before sending it out.
+    // Stored in the DB as a JSON-array string, ["2:00 PM","5:00 PM"].
+    // We parse it into a List<String> in the service before sending out
     @Column(columnDefinition = "TEXT")
     private String showtimes;
 

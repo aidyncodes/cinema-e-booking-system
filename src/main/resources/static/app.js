@@ -7,11 +7,14 @@ const filterSummary = document.getElementById("filterSummary");
 const genreFilter = document.getElementById("genreFilter");
 const dateFilter = document.getElementById("dateFilter");
 const clearFilters = document.getElementById("clearFilters");
+const tabNowPlaying = document.getElementById("tabNowPlaying");
+const tabComingSoon = document.getElementById("tabComingSoon");
 
 const state = {
     currentlyRunning: [],
     comingSoon: [],
-    genres: []
+    genres: [],
+    activeTab: "now-playing"
 };
 
 function clearNode(node) {
@@ -165,9 +168,24 @@ function groupByGenre(movies) {
     }, new Map());
 }
 
+function setActiveTab(tab) {
+    state.activeTab = tab;
+    tabNowPlaying.classList.toggle("active", tab === "now-playing");
+    tabComingSoon.classList.toggle("active", tab === "coming-soon");
+}
+
 function renderHome() {
     clearNode(movieSections);
-    resultSummary.textContent = "Showing current releases by genre, plus upcoming titles.";
+    resultSummary.textContent = "";
+
+    if (state.activeTab === "coming-soon") {
+        if (state.comingSoon.length) {
+            movieSections.appendChild(buildSection("Coming Soon", state.comingSoon));
+        } else {
+            setMessage("empty-state", "No upcoming movies.");
+        }
+        return;
+    }
 
     const grouped = groupByGenre(state.currentlyRunning);
     const orderedGenres = [
@@ -178,10 +196,6 @@ function renderHome() {
     orderedGenres.forEach(genre => {
         movieSections.appendChild(buildSection(genre, grouped.get(genre)));
     });
-
-    if (state.comingSoon.length) {
-        movieSections.appendChild(buildSection("Coming Soon", state.comingSoon));
-    }
 
     if (!movieSections.children.length) {
         setMessage("empty-state", "No movies found.");
@@ -277,5 +291,21 @@ searchForm.addEventListener("submit", runSearch);
 genreFilter.addEventListener("change", applyGenreFilter);
 dateFilter.addEventListener("change", updateFilterSummary);
 clearFilters.addEventListener("click", resetFilters);
+
+tabNowPlaying.addEventListener("click", () => {
+    setActiveTab("now-playing");
+    searchInput.value = "";
+    genreFilter.value = "";
+    updateFilterSummary();
+    renderHome();
+});
+
+tabComingSoon.addEventListener("click", () => {
+    setActiveTab("coming-soon");
+    searchInput.value = "";
+    genreFilter.value = "";
+    updateFilterSummary();
+    renderHome();
+});
 
 loadHome();

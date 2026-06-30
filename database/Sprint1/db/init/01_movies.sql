@@ -179,4 +179,15 @@ VALUES
     'https://placehold.co/300x450?text=Super+Mario+Bros',
     'https://www.youtube.com/embed/TnGl01FkMMo',
     '["10:45 AM", "1:45 PM", "4:45 PM"]'
+),
+(
+    16,
+    'The Batman',
+    'Action',
+    'CURRENTLY_RUNNING',
+    'PG-13',
+    'Batman investigates corruption in Gotham City while pursuing a mysterious killer known as the Riddler.',
+    'https://placehold.co/300x450?text=The+Batman',
+    'https://www.youtube.com/embed/mqqft2x_Aa4',
+    '["1:30 PM", "5:15 PM", "9:00 PM"]'
 );

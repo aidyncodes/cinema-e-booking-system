@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book Tickets - CES Cinema</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/booking.css" />
+    <script src="/booking.js" defer></script>
+</head>
+<body>
+<header class="topbar">
+    <nav class="nav-shell" aria-label="Primary navigation">
+        <a class="brand" href="/index.html" aria-label="CES Cinema home">
+            <span class="brand-mark">CES</span>
+            <span>CES Cinema</span>
+        </a>
+        <div class="nav-links">
+            <a class="nav-link" href="/index.html">Movies</a>
+            <a class="nav-link" href="/order-confirmation.html">Orders</a>
+        </div>
+    </nav>
+</header>
+
+<main class="page booking-page">
+    <div class="back-row">
+        <a class="button secondary" href="/index.html">&larr; Back to Movies</a>
+    </div>
+
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Complete your booking</p>
+            <h1>Select Tickets &amp; Seats</h1>
+            <p class="page-subtitle">Choose your ticket quantities and pick your preferred seats for the show.</p>
+        </div>
+    </div>
+
+    <div class="booking-grid">
+        <!-- LEFT: Movie info & tickets -->
+        <section class="booking-left">
+            <div class="movie-summary-card">
+                <img id="moviePoster" class="booking-poster" src="" alt="Movie poster" />
+                <div class="movie-summary-details">
+                    <p class="eyebrow">Now Booking</p>
+                    <h1 id="movieTitle">Movie Title</h1>
+                    <div class="meta-row">
+                        <span id="movieGenre" class="pill">Genre</span>
+                        <span id="movieRating" class="pill">Rating</span>
+                        <span id="movieStatus" class="pill status">Status</span>
+                    </div>
+                    <div class="showtime-display">
+                        <span class="showtime-label">Showtime</span>
+                        <span id="selectedShowtime" class="showtime-value">2:00 PM</span>
+                    </div>
+                </div>
+            </div>
+
+            <section class="ticket-section">
+                <h2>Ticket Quantities</h2>
+                <div class="ticket-controls">
+                    <div class="ticket-type">
+                        <div class="ticket-info">
+                            <span class="ticket-label">Adult</span>
+                            <span class="ticket-price">$12.00</span>
+                        </div>
+                        <div class="quantity-control">
+                            <button class="qty-btn" data-type="adult" data-dir="minus">−</button>
+                            <span class="qty-display" id="adultCount">0</span>
+                            <button class="qty-btn" data-type="adult" data-dir="plus">+</button>
+                        </div>
+                    </div>
+                    <div class="ticket-type">
+                        <div class="ticket-info">
+                            <span class="ticket-label">Senior</span>
+                            <span class="ticket-price">$8.00</span>
+                        </div>
+                        <div class="quantity-control">
+                            <button class="qty-btn" data-type="senior" data-dir="minus">−</button>
+                            <span class="qty-display" id="seniorCount">0</span>
+                            <button class="qty-btn" data-type="senior" data-dir="plus">+</button>
+                        </div>
+                    </div>
+                    <div class="ticket-type">
+                        <div class="ticket-info">
+                            <span class="ticket-label">Child</span>
+                            <span class="ticket-price">$6.00</span>
+                        </div>
+                        <div class="quantity-control">
+                            <button class="qty-btn" data-type="child" data-dir="minus">−</button>
+                            <span class="qty-display" id="childCount">0</span>
+                            <button class="qty-btn" data-type="child" data-dir="plus">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="ticket-total">
+                    <span>Total Tickets: <strong id="totalTickets">0</strong></span>
+                    <span>Total Price: <strong id="totalPrice">$0.00</strong></span>
+                </div>
+            </section>
+        </section>
+
+        <!-- RIGHT: Seat map -->
+        <section class="booking-right">
+            <h2>Seat Selection</h2>
+            <div class="seat-legend">
+                <span><span class="seat-dot available"></span> Available</span>
+                <span><span class="seat-dot selected"></span> Selected</span>
+                <span><span class="seat-dot occupied"></span> Occupied</span>
+            </div>
+            <div class="seat-grid" id="seatGrid"></div>
+            <div class="screen-indicator">Screen</div>
+        </section>
+    </div>
+
+    <div class="booking-actions">
+        <button class="button secondary" id="resetSeatsBtn">Reset Seats</button>
+        <button class="button" id="proceedBtn">Proceed to Checkout</button>
+    </div>
+</main>
+</body>
+</html>

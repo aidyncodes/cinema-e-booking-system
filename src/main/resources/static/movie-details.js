@@ -72,7 +72,7 @@ function createPill(text, className = "pill") {
     return pill;
 }
 
-function renderShowtimes(showtimes) {
+function renderShowtimes(movie) {
     const section = document.createElement("section");
     section.className = "showtimes";
 
@@ -82,17 +82,28 @@ function renderShowtimes(showtimes) {
     const list = document.createElement("div");
     list.className = "showtime-list";
 
-    if (Array.isArray(showtimes) && showtimes.length) {
-        showtimes.forEach(value => {
-            const item = document.createElement("span");
-            item.className = "showtime";
-            item.textContent = value;
-            list.appendChild(item);
+    if (Array.isArray(movie.showtimes) && movie.showtimes.length) {
+        movie.showtimes.forEach(value => {
+            const link = document.createElement('a');
+            link.className = 'showtime';
+            link.textContent = value;
+
+            // Build booking URL with movie data
+            const params = new URLSearchParams();
+            params.set('title', movie.title);
+            params.set('showtime', value);
+            params.set('genre', movie.genre || '');
+            params.set('rating', movie.rating || '');
+            params.set('status', movie.status || '');
+            params.set('poster', movie.posterUrl || '');
+            link.href = `/booking.html?${params.toString()}`;
+
+            list.appendChild(link);
         });
     } else {
-        const empty = document.createElement("p");
-        empty.className = "empty-state";
-        empty.textContent = "No showtimes listed.";
+        const empty = document.createElement('p');
+        empty.className = 'empty-state';
+        empty.textContent = 'No showtimes listed.';
         list.appendChild(empty);
     }
 
@@ -172,7 +183,7 @@ function renderMovie(movie) {
         title,
         meta,
         description,
-        renderShowtimes(movie.showtimes),
+        renderShowtimes(movie), //changed from renderShowtimes(movie.showtimes)
         renderTrailer(movie)
     );
 

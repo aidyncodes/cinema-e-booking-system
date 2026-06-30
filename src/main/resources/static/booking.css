@@ -1,0 +1,363 @@
+/* ── Booking page layout ── */
+.booking-page {
+    padding-top: 12px;
+}
+
+.booking-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 36px;
+    margin-top: 12px;
+    align-items: start;
+}
+
+/* ── Left column ── */
+.booking-left {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.movie-summary-card {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+}
+
+.booking-poster {
+    width: 100px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+    background: #222222;
+}
+
+.movie-summary-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.movie-summary-details .eyebrow {
+    margin-bottom: 2px;
+}
+
+.movie-summary-details h1 {
+    font-size: 26px;
+    margin: 2px 0 10px;
+    font-weight: 900;
+    color: #ffffff;
+}
+
+.showtime-display {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+}
+
+.showtime-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 2px;
+}
+
+.showtime-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+}
+
+/* ── Ticket controls ── */
+.ticket-section {
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+}
+
+.ticket-section h2 {
+    margin: 0 0 16px;
+    font-size: 16px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+}
+
+.ticket-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ticket-type {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--paper);
+}
+
+.ticket-info {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+}
+
+.ticket-label {
+    font-weight: 700;
+    font-size: 15px;
+    color: #ffffff;
+}
+
+.ticket-price {
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.quantity-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.qty-btn {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--surface-strong);
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    transition: background 160ms ease, border-color 160ms ease;
+    cursor: pointer;
+}
+
+.qty-btn:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+.qty-btn:active {
+    transform: scale(0.94);
+}
+
+.qty-display {
+    min-width: 32px;
+    text-align: center;
+    font-weight: 800;
+    font-size: 18px;
+    color: #ffffff;
+}
+
+.ticket-total {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 2px solid var(--accent);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.ticket-total strong {
+    color: #ffffff;
+    font-size: 18px;
+}
+
+/* ── Right column: Seat map ── */
+.booking-right {
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+}
+
+.booking-right h2 {
+    margin: 0 0 14px;
+    font-size: 16px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+}
+
+.seat-legend {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 18px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.seat-dot {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.seat-dot.available {
+    background: #3a4a5a;
+    border: 1px solid #4a5a6a;
+}
+
+.seat-dot.selected {
+    background: var(--accent);
+    border: 1px solid var(--accent);
+}
+
+.seat-dot.occupied {
+    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    opacity: 0.4;
+}
+
+.seat-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.seat {
+    aspect-ratio: 1 / 1;
+    border: none;
+    border-radius: 4px;
+    background: #3a4a5a;
+    cursor: pointer;
+    transition: background 160ms ease, transform 140ms ease, box-shadow 160ms ease;
+}
+
+.seat:hover:not(.occupied) {
+    transform: scale(1.08);
+}
+
+.seat.available {
+    background: #3a4a5a;
+    border: 1px solid #4a5a6a;
+}
+
+.seat.selected {
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 16px rgba(227, 24, 55, 0.35);
+}
+
+.seat.occupied {
+    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    cursor: not-allowed;
+    opacity: 0.4;
+}
+
+.screen-indicator {
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 4px;
+    background: var(--surface-strong);
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+
+/* ── Bottom actions ── */
+.booking-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+}
+
+/* ── Responsive ── */
+@media (max-width: 920px) {
+    .booking-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .seat-grid {
+        grid-template-columns: repeat(8, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .movie-summary-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .booking-poster {
+        width: 140px;
+        height: 210px;
+    }
+
+    .movie-summary-details .meta-row {
+        justify-content: center;
+    }
+
+    .ticket-type {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .ticket-info {
+        justify-content: center;
+    }
+
+    .quantity-control {
+        justify-content: center;
+    }
+
+    .ticket-total {
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .seat-grid {
+        grid-template-columns: repeat(6, 1fr);
+        gap: 5px;
+    }
+
+    .seat-legend {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .booking-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .booking-actions .button {
+        width: 100%;
+        justify-content: center;
+    }
+}

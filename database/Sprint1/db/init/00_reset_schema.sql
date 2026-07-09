@@ -1,0 +1,11 @@
+SET FOREIGN_KEY_CHECKS = 0;
+
+DROP TABLE IF EXISTS password_reset_tokens;
+DROP TABLE IF EXISTS email_confirmation_tokens;
+DROP TABLE IF EXISTS favorites;
+DROP TABLE IF EXISTS payment_cards;
+DROP TABLE IF EXISTS addresses;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS movies;
+
+SET FOREIGN_KEY_CHECKS = 1;

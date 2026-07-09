@@ -1,0 +1,203 @@
+@startuml Cinema_Domain_Class_Diagram
+
+title Cinema E-Booking System — Domain Class Diagram
+
+' ---- minimal styling ----
+skinparam shadowing false
+skinparam monochrome false
+skinparam classFontStyle bold
+skinparam classBackgroundColor White
+skinparam classHeaderBackgroundColor #EEEEEE
+skinparam classBorderColor Black
+skinparam enumBackgroundColor White
+skinparam enumHeaderBackgroundColor #EEEEEE
+skinparam ArrowColor Black
+skinparam nodesep 40
+skinparam ranksep 45
+
+abstract class User {
+  - userID : String
+  - email : String
+  - password : String
+  + login() : boolean
+  + resetPassword()
+}
+
+class Customer {
+  - firstName : String
+  - lastName : String
+  - status : CustomerStatus
+  + register()
+  + updateProfile()
+  + addPaymentCard(card : PaymentCard)
+  + addFavoriteMovie(movie : Movie)
+  + createBooking(show : Show) : Booking
+}
+
+class Admin {
+  - name : String
+  + addMovie(movie : Movie)
+  + scheduleShow(movie : Movie, room : Showroom) : Show
+  + createPromotion() : Promotion
+  + setTicketPrice(type : TicketType, price : double)
+}
+
+enum CustomerStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+class PaymentCard {
+  - cardNumber : String
+  - expirationDate : Date
+  + isExpired() : boolean
+}
+
+class Address {
+  - street : String
+  - city : String
+  - state : String
+  - zipCode : String
+}
+
+class Movie {
+  - movieID : String
+  - title : String
+  - rating : MPAARating
+  - status : MovieStatus
+  - description : String
+  - posterURL : String
+  - trailerURL : String
+  + getShowtimes() : List<Show>
+}
+
+enum MovieStatus {
+  CURRENTLY_RUNNING
+  COMING_SOON
+}
+
+enum MPAARating {
+  G
+  PG
+  PG13
+  R
+  NC17
+}
+
+class Theatre {
+  - name : String
+  - location : String
+}
+
+class Showroom {
+  - showroomID : String
+  - numberOfSeats : int
+  + isAvailable(date : Date, time : Time) : boolean
+}
+
+class Seat {
+  - seatNumber : String
+  - row : String
+}
+
+class Show {
+  - showID : String
+  - date : Date
+  - time : Time
+  - duration : int
+  + getAvailableSeats() : List<Seat>
+}
+
+class Booking {
+  - bookingID : String
+  - bookingDate : Date
+  - orderTotal : double
+  + addTicket(seat : Seat, type : TicketType) : Ticket
+  + applyPromotion(promo : Promotion) : boolean
+  + calculateTotal() : double
+}
+
+class Ticket {
+  - ticketID : String
+  - price : double
+}
+
+class ShowSeat {
+  - status : SeatStatus
+  + reserve() : boolean
+}
+
+enum SeatStatus {
+  AVAILABLE
+  RESERVED
+}
+
+class TicketType {
+  - typeName : String
+  - price : double
+  + getPrice() : double
+}
+
+class Promotion {
+  - promoCode : String
+  - discountPercentage : double
+  - startDate : Date
+  - endDate : Date
+  + isValid(date : Date) : boolean
+}
+
+class Recommendation {
+  - recommendationID : String
+  - score : double
+  - reason : String
+  - generatedDate : Date
+}
+
+class Preference {
+  - genre : String
+  - weight : double
+}
+
+class RecommendationEngine {
+  + generateRecommendations(c : Customer) : List<Recommendation>
+  + analyzeBookingHistory(c : Customer)
+  + matchPreferences(c : Customer) : List<Movie>
+}
+
+' ---- relationships ----
+User <|-- Customer
+User <|-- Admin
+
+Customer "1" *-- "0..3" PaymentCard
+Customer "1" *-- "0..1" Address : mailing address
+PaymentCard "1" -- "1" Address : billing address
+Customer ..> CustomerStatus
+
+Theatre "1" *-- "1..*" Showroom
+Showroom "1" *-- "1..*" Seat
+Show "0..*" -- "1" Showroom : scheduled in
+Show "0..*" -- "1" Movie
+Movie ..> MPAARating
+Movie ..> MovieStatus
+
+Customer "1" -- "0..*" Booking : places
+Booking "1" *-- "1..*" Ticket
+Booking "0..*" -- "1" Show : booked for
+Booking "0..*" -- "0..1" Promotion : applies
+Show "0..*" -- "1..*" Seat : seating for
+(Show, Seat) .. ShowSeat
+Ticket "0..1" -- "1" ShowSeat : reserves
+ShowSeat ..> SeatStatus
+Ticket "0..*" -- "1" TicketType
+
+Customer "0..*" -- "0..*" Movie : favorites
+Customer "1" -- "0..*" Recommendation : receives
+Recommendation "0..*" -- "1" Movie : recommends
+
+Customer "1" *-- "0..*" Preference
+RecommendationEngine ..> Booking : analyzes
+RecommendationEngine ..> Preference : reads
+RecommendationEngine "1" -- "0..*" Recommendation : generates
+
+@enduml

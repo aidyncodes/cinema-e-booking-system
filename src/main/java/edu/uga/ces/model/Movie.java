@@ -35,8 +35,6 @@ public class Movie {
     @Column(name = "trailer_url")
     private String trailerUrl;
 
-    // Stored in the DB as a JSON-array string, ["2:00 PM","5:00 PM"].
-    // We parse it into a List<String> in the service before sending out
     @Column(columnDefinition = "TEXT")
     private String showtimes;
 

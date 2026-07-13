@@ -7,6 +7,8 @@ import java.time.Instant;
 /**
  * User account entity, one row per registered user (customer or admin).
  * Manual getters/setters to match the style used by Movie (no Lombok in this project).
+ *
+ * Email confirmation tokens have their own table (EmailConfirmationToken), not here
  */
 @Entity
 @Table(name = "users")
@@ -19,16 +21,16 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(name = "first_name", nullable = false) // specify col name in sql database table
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    @Column(nullable = false)
+    // Nullable in the shared schema
     private String phone;
 
-    // ACTIVE or INACTIVE 
+    // ACTIVE or INACTIVE
     @Column(nullable = false)
     private String status;
 
@@ -36,18 +38,18 @@ public class User {
     @Column(nullable = false)
     private String role;
 
-    @Column(name = "password_hash", nullable = false)
+    @Column(name = "password_hash", nullable = false, length = 60)
     private String passwordHash;
 
     @Column(name = "promotions_opt_in", nullable = false)
     private Boolean promotionsOptIn;
 
-    // Set at registration, but cleared once account is confirmed w/ email.
-    @Column(name = "confirmation_token")
-    private String confirmationToken;
+    // DB-managed (DEFAULT / ON UPDATE CURRENT_TIMESTAMP), the app never writes these.
+    @Column(name = "created_at", insertable = false, updatable = false)
+    private Instant createdAt;
 
-    @Column(name = "confirmation_token_expires_at")
-    private Instant confirmationTokenExpiresAt;
+    @Column(name = "updated_at", insertable = false, updatable = false)
+    private Instant updatedAt;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -76,9 +78,6 @@ public class User {
     public Boolean getPromotionsOptIn() { return promotionsOptIn; }
     public void setPromotionsOptIn(Boolean promotionsOptIn) { this.promotionsOptIn = promotionsOptIn; }
 
-    public String getConfirmationToken() { return confirmationToken; }
-    public void setConfirmationToken(String confirmationToken) { this.confirmationToken = confirmationToken; }
-
-    public Instant getConfirmationTokenExpiresAt() { return confirmationTokenExpiresAt; }
-    public void setConfirmationTokenExpiresAt(Instant confirmationTokenExpiresAt) { this.confirmationTokenExpiresAt = confirmationTokenExpiresAt; }
+    public Instant getCreatedAt() { return createdAt; }
+    public Instant getUpdatedAt() { return updatedAt; }
 }

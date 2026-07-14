@@ -23,7 +23,7 @@ public class CardEncryptionService {
     private final SecureRandom secureRandom = new SecureRandom();
     private final SecretKey secretKey;
 
-    public CardEncryptionService(@Value("${CARD_ENCRYPTION_KEY:}") String encodedKey) {
+    public CardEncryptionService(@Value("${app.card-encryption-key:}") String encodedKey) {
         this.secretKey = parseKey(encodedKey);
     }
 
@@ -33,6 +33,15 @@ public class CardEncryptionService {
             throw new AccountOperationException("Enter a valid payment card number.");
         }
 
+        validateExpiration(expirationMonth, expirationYear);
+
+        return new ValidatedCard(
+                cardNumber,
+                cardNumber.substring(cardNumber.length() - 4),
+                detectBrand(cardNumber));
+    }
+
+    public void validateExpiration(int expirationMonth, int expirationYear) {
         YearMonth expiration;
         try {
             expiration = YearMonth.of(expirationYear, expirationMonth);
@@ -42,11 +51,6 @@ public class CardEncryptionService {
         if (expiration.isBefore(YearMonth.now())) {
             throw new AccountOperationException("The payment card has expired.");
         }
-
-        return new ValidatedCard(
-                cardNumber,
-                cardNumber.substring(cardNumber.length() - 4),
-                detectBrand(cardNumber));
     }
 
     public EncryptedCard encrypt(String cardNumber) {

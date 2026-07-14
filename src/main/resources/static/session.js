@@ -56,9 +56,8 @@ async function logout() {
     window.location.href = "/index.html";
 }
 
-// ── Favorites (client-side only for now; movie cards call these helpers so
-// the storage can be swapped for a real /api/favorites backend later without
-// touching app.js / movie-details.js call sites) ──
+// Favorites are stored server-side, with a small local cache for instant UI state.
+let favoriteIdsCache = null;
 
 function favoritesStorageKey() {
     const user = getCurrentUser();
@@ -80,24 +79,40 @@ function isFavorite(movieId) {
     return getFavoriteIds().includes(Number(movieId));
 }
 
-// Returns the new favorite state (true/false), or null if nobody is logged in.
-function toggleFavorite(movieId) {
+function setFavoriteIds(ids) {
+    favoriteIdsCache = ids.map(Number);
     const key = favoritesStorageKey();
-    if (!key) return null;
+    if (key) {
+        localStorage.setItem(key, JSON.stringify(favoriteIdsCache));
+    }
+}
 
-    const id = Number(movieId);
-    const ids = getFavoriteIds();
-    const index = ids.indexOf(id);
-    let nowFavorite;
-
-    if (index === -1) {
-        ids.push(id);
-        nowFavorite = true;
-    } else {
-        ids.splice(index, 1);
-        nowFavorite = false;
+async function loadFavoriteIds() {
+    if (!isLoggedIn()) {
+        favoriteIdsCache = [];
+        return favoriteIdsCache;
     }
 
-    localStorage.setItem(key, JSON.stringify(ids));
+    const favorites = await apiRequest("/api/profile/favorites");
+    setFavoriteIds(favorites.map(movie => movie.id));
+    return favoriteIdsCache;
+}
+
+// Returns the new favorite state (true/false), or null if nobody is logged in.
+async function toggleFavorite(movieId) {
+    if (!isLoggedIn()) return null;
+
+    const id = Number(movieId);
+    const ids = favoriteIdsCache || getFavoriteIds();
+    const nowFavorite = !ids.includes(id);
+
+    if (nowFavorite) {
+        await apiRequest(`/api/profile/favorites/${encodeURIComponent(id)}`, { method: "POST" });
+        setFavoriteIds([...ids, id]);
+    } else {
+        await apiRequest(`/api/profile/favorites/${encodeURIComponent(id)}`, { method: "DELETE" });
+        setFavoriteIds(ids.filter(value => value !== id));
+    }
+
     return nowFavorite;
 }

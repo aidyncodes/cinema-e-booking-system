@@ -44,9 +44,13 @@ Object.keys(validators).forEach(key => {
     fields[key].input.addEventListener("blur", () => validateField(key));
 });
 
-function redirectAfterLogin() {
+function redirectAfterLogin(user) {
     const target = new URLSearchParams(window.location.search).get("redirect");
-    window.location.href = target || "/index.html";
+    if (target) {
+        window.location.href = target;
+        return;
+    }
+    window.location.href = user.role === "ADMIN" ? "/admin/index.html" : "/index.html";
 }
 
 async function handleSubmit(event) {
@@ -71,7 +75,7 @@ async function handleSubmit(event) {
             body: JSON.stringify(payload)
         });
         setCurrentUser(user);
-        redirectAfterLogin();
+        redirectAfterLogin(user);
     } catch (error) {
         if (error.status === 400 && error.data && error.data.fields) {
             Object.entries(error.data.fields).forEach(([key, message]) => setFieldError(key, message));

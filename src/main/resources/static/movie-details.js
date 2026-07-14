@@ -1,4 +1,4 @@
-const detailsRoot = document.getElementById("detailsRoot");
+﻿const detailsRoot = document.getElementById("detailsRoot");
 
 function clearNode(node) {
     while (node.firstChild) {
@@ -151,17 +151,23 @@ function buildFavoriteToggle(movie) {
     function refresh() {
         const active = isLoggedIn() && isFavorite(movie.id);
         btn.classList.toggle("active", active);
-        btn.textContent = active ? "♥ Remove from Favorites" : "♡ Add to Favorites";
+        btn.textContent = active ? "\u2665 Remove from Favorites" : "\u2661 Add to Favorites";
+        btn.title = active ? "Remove from favorites" : "Add to favorites";
     }
 
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
         if (!isLoggedIn()) {
             const redirect = window.location.pathname + window.location.search;
             window.location.href = `/login.html?redirect=${encodeURIComponent(redirect)}`;
             return;
         }
-        toggleFavorite(movie.id);
-        refresh();
+        btn.disabled = true;
+        try {
+            await toggleFavorite(movie.id);
+            refresh();
+        } finally {
+            btn.disabled = false;
+        }
     });
 
     refresh();
@@ -228,6 +234,9 @@ async function loadMovie() {
 
     try {
         const movie = await fetchJson(`/api/movies/${encodeURIComponent(id)}`);
+        if (isLoggedIn()) {
+            await loadFavoriteIds();
+        }
         renderMovie(movie);
     } catch (error) {
         setMessage("error-state", "Could not load this movie.");

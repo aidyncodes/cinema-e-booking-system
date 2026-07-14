@@ -110,7 +110,7 @@ public class ProfileService {
 
         PaymentCard card = new PaymentCard();
         card.setUserId(userId);
-        applyCardDetails(card, request);
+        applyCardDetails(card, request, true);
         card = paymentCardRepository.save(card);
 
         emailService.sendProfileChangedEmail(user.getEmail(), user.getFirstName());
@@ -123,7 +123,7 @@ public class ProfileService {
         PaymentCard card = paymentCardRepository.findByIdAndUserId(cardId, userId)
                 .orElseThrow(() -> new AccountOperationException("Payment card not found."));
 
-        applyCardDetails(card, request);
+        applyCardDetails(card, request, false);
         card = paymentCardRepository.save(card);
         emailService.sendProfileChangedEmail(user.getEmail(), user.getFirstName());
         return toCardResponse(card);
@@ -172,16 +172,25 @@ public class ProfileService {
         return changed;
     }
 
-    private void applyCardDetails(PaymentCard card, PaymentCardRequest request) {
+    private void applyCardDetails(PaymentCard card, PaymentCardRequest request, boolean requireCardNumber) {
+        card.setCardholderName(request.cardholderName().trim());
+        card.setExpirationMonth(request.expirationMonth());
+        card.setExpirationYear(request.expirationYear());
+
+        boolean hasCardNumber = request.cardNumber() != null && !request.cardNumber().isBlank();
+        if (!hasCardNumber) {
+            if (requireCardNumber) {
+                throw new AccountOperationException("Enter a valid payment card number.");
+            }
+            cardEncryptionService.validateExpiration(request.expirationMonth(), request.expirationYear());
+            return;
+        }
+
         CardEncryptionService.ValidatedCard validated = cardEncryptionService.validate(
                 request.cardNumber(), request.expirationMonth(), request.expirationYear());
         CardEncryptionService.EncryptedCard encrypted = cardEncryptionService.encrypt(validated.cardNumber());
-
-        card.setCardholderName(request.cardholderName().trim());
         card.setCardBrand(validated.brand());
         card.setLastFour(validated.lastFour());
-        card.setExpirationMonth(request.expirationMonth());
-        card.setExpirationYear(request.expirationYear());
         card.setEncryptedCardData(encrypted.ciphertext());
         card.setEncryptionIv(encrypted.iv());
     }

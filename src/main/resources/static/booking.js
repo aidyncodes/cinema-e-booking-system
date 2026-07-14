@@ -1,4 +1,4 @@
-// ── DOM refs ──
+﻿// DOM refs
 const movieTitle = document.getElementById('movieTitle');
 const movieGenre = document.getElementById('movieGenre');
 const movieRating = document.getElementById('movieRating');
@@ -16,18 +16,18 @@ const seatGrid = document.getElementById('seatGrid');
 const resetSeatsBtn = document.getElementById('resetSeatsBtn');
 const proceedBtn = document.getElementById('proceedBtn');
 
-// ── Constants ──
+// Constants
 const PRICES = { adult: 12.00, senior: 8.00, child: 6.00 };
 const ROWS = 7;
 const COLS = 10;
 const TOTAL_SEATS = ROWS * COLS;
 
-// ── State ──
+// State
 let ticketCounts = { adult: 0, senior: 0, child: 0 };
 let selectedSeats = new Set();
 let occupiedSeats = new Set();
 
-// ── Helper functions ──
+// Helper functions
 function generateOccupiedSeats() {
     const count = Math.floor(Math.random() * 12) + 4;
     const seats = new Set();
@@ -48,7 +48,7 @@ function posterFor(url, title) {
     return `https://placehold.co/300x450/f3efe8/171717?text=${encodeURIComponent(title || 'Movie')}`;
 }
 
-// ── Render seat grid ──
+// Render seat grid
 function renderSeats() {
     seatGrid.innerHTML = '';
     for (let i = 0; i < TOTAL_SEATS; i++) {
@@ -88,7 +88,7 @@ function toggleSeat(index) {
     }
 }
 
-// ── Update ticket display ──
+// Update ticket display
 function updateTicketDisplay() {
     adultCount.textContent = ticketCounts.adult;
     seniorCount.textContent = ticketCounts.senior;
@@ -108,7 +108,7 @@ function adjustTicket(type, delta) {
     updateTicketDisplay();
 }
 
-// ── Load movie data from URL ──
+// Load movie data from URL
 function loadMovieData() {
     const params = new URLSearchParams(window.location.search);
     const title = params.get('title') || 'Dune: Part Two';
@@ -138,7 +138,7 @@ function loadMovieData() {
     document.title = `Book ${title} - CES Cinema`;
 }
 
-// ── Proceed to checkout ──
+// Proceed to checkout
 function proceedToCheckout() {
     const total = ticketCounts.adult + ticketCounts.senior + ticketCounts.child;
     if (total === 0) {
@@ -169,7 +169,7 @@ function proceedToCheckout() {
     window.location.href = `/order-confirmation.html?${confirmParams.toString()}`;
 }
 
-// ── Event listeners ──
+// Event listeners
 document.querySelectorAll('.qty-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const type = btn.dataset.type;
@@ -185,8 +185,9 @@ resetSeatsBtn.addEventListener('click', () => {
 
 proceedBtn.addEventListener('click', proceedToCheckout);
 
-// ── Init ──
+// Init
 occupiedSeats = generateOccupiedSeats();
 loadMovieData();
 renderSeats();
 updateTicketDisplay();
+

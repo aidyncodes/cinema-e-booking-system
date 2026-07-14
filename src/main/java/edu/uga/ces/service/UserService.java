@@ -2,6 +2,7 @@ package edu.uga.ces.service;
 
 import edu.uga.ces.dto.LoginRequest;
 import edu.uga.ces.dto.RegisterRequest;
+import edu.uga.ces.exception.AccountOperationException;
 import edu.uga.ces.exception.AccountNotActiveException;
 import edu.uga.ces.exception.EmailAlreadyExistsException;
 import edu.uga.ces.exception.InvalidCredentialsException;
@@ -10,8 +11,10 @@ import edu.uga.ces.model.EmailConfirmationToken;
 import edu.uga.ces.model.User;
 import edu.uga.ces.repository.EmailConfirmationTokenRepository;
 import edu.uga.ces.repository.UserRepository;
+import org.springframework.mail.MailException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -49,6 +52,7 @@ public class UserService {
         this.emailService = emailService;
     }
 
+    @Transactional
     public void register(RegisterRequest req) {
         String email = req.email().trim().toLowerCase();
 
@@ -76,8 +80,12 @@ public class UserService {
         token.setExpiresAt(Instant.now().plus(CONFIRMATION_TOKEN_VALID_HOURS, ChronoUnit.HOURS));
         tokenRepository.save(token);
 
-        // Raw token goes in the email; only its hash ever touches the DB.
-        emailService.sendConfirmationEmail(user.getEmail(), user.getFirstName(), rawToken);
+        try {
+            // Raw token goes in the email; only its hash ever touches the DB.
+            emailService.sendConfirmationEmail(user.getEmail(), user.getFirstName(), rawToken);
+        } catch (MailException ex) {
+            throw new AccountOperationException("Could not send confirmation email. Please try again in a moment.");
+        }
     }
 
     // Returns the authenticated user; throws before returning if anything is wrong.

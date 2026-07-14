@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie Details - CES Cinema</title>
+    <title>My Favorites - CES Cinema</title>
     <link rel="stylesheet" href="/styles.css">
     <script src="/session.js" defer></script>
     <script src="/nav-auth.js" defer></script>
-    <script src="/movie-details.js" defer></script>
+    <script src="/favorites.js" defer></script>
 </head>
 <body>
 <header class="topbar">
@@ -26,12 +26,16 @@
 </header>
 
 <main class="page">
-    <div class="back-row">
-        <a class="button secondary" href="/index.html">Back to Movies</a>
-    </div>
+    <section class="page-header">
+        <div>
+            <p class="eyebrow">Your List</p>
+            <h1>Favorite Movies</h1>
+            <p class="page-subtitle">Movies you saved while browsing the catalogue.</p>
+        </div>
+    </section>
 
-    <section id="detailsRoot" class="detail-layout" aria-live="polite">
-        <div class="loading-state">Loading movie details...</div>
+    <section id="favoritesRoot" class="section-stack" aria-live="polite">
+        <div class="loading-state">Loading favorites...</div>
     </section>
 </main>
 </body>

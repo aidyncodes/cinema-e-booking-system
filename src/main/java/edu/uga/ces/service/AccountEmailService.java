@@ -1,6 +1,7 @@
 package edu.uga.ces.service;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,7 @@ public class AccountEmailService {
     private final String frontendBaseUrl;
 
     public AccountEmailService(JavaMailSender mailSender,
-                               @Value("${spring.mail.username}") String fromAddress,
+                               @Value("${app.mail.from}") String fromAddress,
                                @Value("${FRONTEND_BASE_URL:http://localhost:8080}") String frontendBaseUrl) {
         this.mailSender = mailSender;
         this.fromAddress = fromAddress;
@@ -55,6 +56,10 @@ public class AccountEmailService {
         message.setTo(toEmail);
         message.setSubject(subject);
         message.setText(text);
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+        } catch (MailException ex) {
+            System.err.println("Could not send account notification email: " + ex.getMessage());
+        }
     }
 }

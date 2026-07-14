@@ -1,10 +1,10 @@
-function clearNode(node) {
+﻿function clearNode(node) {
     while (node.firstChild) {
         node.removeChild(node.firstChild);
     }
 }
 
-// ── DOM refs ──
+// DOM refs
 const pageBanner = document.getElementById("pageBanner");
 const loadingState = document.getElementById("loadingState");
 const profileRoot = document.getElementById("profileRoot");
@@ -25,6 +25,31 @@ const accountValidators = {
     firstName: () => (accountFields.firstName.input.value.trim() ? "" : "First name is required."),
     lastName: () => (accountFields.lastName.input.value.trim() ? "" : "Last name is required."),
     phone: () => (accountFields.phone.input.value.trim() ? "" : "Phone is required.")
+};
+
+const passwordForm = document.getElementById("passwordForm");
+const passwordBanner = document.getElementById("passwordBanner");
+const passwordSaveBtn = document.getElementById("passwordSaveBtn");
+const passwordFields = {
+    currentPassword: { input: document.getElementById("currentPassword"), error: document.getElementById("currentPasswordError") },
+    newPassword: { input: document.getElementById("newPassword"), error: document.getElementById("newPasswordError") },
+    confirmNewPassword: { input: document.getElementById("confirmNewPassword"), error: document.getElementById("confirmNewPasswordError") }
+};
+
+const passwordValidators = {
+    currentPassword: () => (passwordFields.currentPassword.input.value ? "" : "Current password is required."),
+    newPassword: () => {
+        const value = passwordFields.newPassword.input.value;
+        if (!value) return "New password is required.";
+        if (value.length < 8) return "Password must be at least 8 characters.";
+        return "";
+    },
+    confirmNewPassword: () => {
+        const value = passwordFields.confirmNewPassword.input.value;
+        if (!value) return "Please confirm your new password.";
+        if (value !== passwordFields.newPassword.input.value) return "Passwords do not match.";
+        return "";
+    }
 };
 
 const addressBanner = document.getElementById("addressBanner");
@@ -71,6 +96,7 @@ const cardValidators = {
     cardholderName: () => (cardFields.cardholderName.input.value.trim() ? "" : "Cardholder name is required."),
     cardNumber: () => {
         const digits = cardFields.cardNumber.input.value.replace(/[\s-]/g, "");
+        if (cardEditingId.value && !digits) return "";
         if (!digits) return "Card number is required.";
         if (!/^\d{13,19}$/.test(digits)) return "Enter a valid card number.";
         return "";
@@ -87,11 +113,11 @@ const cardValidators = {
 
 const favoritesList = document.getElementById("favoritesList");
 
-// ── State ──
+// State
 let profile = null;
 let movieCatalog = null;
 
-// ── Shared helpers ──
+// Shared helpers
 function showBanner(el, type, message) {
     el.className = `form-banner ${type}`;
     el.textContent = message;
@@ -157,7 +183,7 @@ function buildItemCard(title, metaLines, actions) {
     return card;
 }
 
-// ── Load profile ──
+// Load profile
 async function loadProfile() {
     try {
         profile = await apiRequest("/api/profile");
@@ -179,13 +205,13 @@ async function loadProfile() {
     populateAccountForm();
     renderAddress();
     renderCards();
-    renderFavorites();
+    await renderFavorites();
 
     loadingState.classList.add("hidden");
     profileRoot.classList.remove("hidden");
 }
 
-// ── Account info ──
+// Account info
 function populateAccountForm() {
     profileEmail.value = profile.email;
     accountFields.firstName.input.value = profile.firstName || "";
@@ -217,7 +243,6 @@ async function handleAccountSubmit(event) {
     };
 
     accountSaveBtn.disabled = true;
-    accountSaveBtn.textContent = "Saving...";
 
     try {
         profile = await apiRequest("/api/profile", { method: "PUT", body: JSON.stringify(payload) });
@@ -235,13 +260,56 @@ async function handleAccountSubmit(event) {
         }
     } finally {
         accountSaveBtn.disabled = false;
-        accountSaveBtn.textContent = "Save Changes";
     }
 }
 
 accountForm.addEventListener("submit", handleAccountSubmit);
 
-// ── Address (max 1) ──
+Object.keys(passwordValidators).forEach(key => {
+    passwordFields[key].input.addEventListener("blur", () => {
+        setFieldError(passwordFields, key, passwordValidators[key]());
+    });
+});
+
+passwordFields.newPassword.input.addEventListener("input", () => {
+    if (passwordFields.confirmNewPassword.error.textContent) {
+        setFieldError(passwordFields, "confirmNewPassword", passwordValidators.confirmNewPassword());
+    }
+});
+
+async function handlePasswordSubmit(event) {
+    event.preventDefault();
+    hideBanner(passwordBanner);
+
+    if (!validateAll(passwordFields, passwordValidators)) {
+        return;
+    }
+
+    passwordSaveBtn.disabled = true;
+    passwordSaveBtn.textContent = "Changing...";
+
+    try {
+        const response = await apiRequest("/api/auth/change-password", {
+            method: "POST",
+            body: JSON.stringify({
+                currentPassword: passwordFields.currentPassword.input.value,
+                newPassword: passwordFields.newPassword.input.value
+            })
+        });
+        passwordForm.reset();
+        clearErrors(passwordFields);
+        showBanner(passwordBanner, "success", response.message || "Password changed successfully.");
+    } catch (error) {
+        showBanner(passwordBanner, "error", error.message || "Could not change password.");
+    } finally {
+        passwordSaveBtn.disabled = false;
+        passwordSaveBtn.textContent = "Change Password";
+    }
+}
+
+passwordForm.addEventListener("submit", handlePasswordSubmit);
+
+// Address (max 1)
 function renderAddress() {
     clearNode(addressDisplay);
 
@@ -334,7 +402,7 @@ async function handleDeleteAddress() {
     }
 }
 
-// ── Payment cards (max 3) ──
+// Payment cards (max 3)
 function renderCards() {
     clearNode(cardsList);
     cardsLimitNote.textContent = `${profile.paymentCards.length} / 3`;
@@ -346,7 +414,7 @@ function renderCards() {
         cardsList.appendChild(hint);
     } else {
         profile.paymentCards.forEach(card => {
-            const title = `${card.cardBrand || "Card"} •••• ${card.lastFour}`;
+            const title = `${card.cardBrand || "Card"} **** ${card.lastFour}`;
             const meta = [
                 card.cardholderName,
                 `Expires ${String(card.expirationMonth).padStart(2, "0")}/${card.expirationYear}`
@@ -433,7 +501,7 @@ async function handleDeleteCard(cardId) {
     }
 }
 
-// ── Favorites ──
+// Favorites
 function posterFor(movie) {
     if (movie.posterUrl) return movie.posterUrl;
     return `https://placehold.co/300x450/f3efe8/171717?text=${encodeURIComponent(movie.title || "Movie")}`;
@@ -459,10 +527,13 @@ function buildFavoriteCard(movie) {
     favoriteBtn.type = "button";
     favoriteBtn.className = "favorite-btn active";
     favoriteBtn.setAttribute("aria-label", `Remove ${movie.title} from favorites`);
-    favoriteBtn.textContent = "♥";
-    favoriteBtn.addEventListener("click", event => {
+    favoriteBtn.title = "Remove from favorites";
+    favoriteBtn.textContent = "\u2665";
+    favoriteBtn.addEventListener("click", async event => {
         event.preventDefault();
-        toggleFavorite(movie.id);
+        favoriteBtn.disabled = true;
+        await toggleFavorite(movie.id);
+        movieCatalog = null;
         renderFavorites();
     });
 
@@ -482,33 +553,22 @@ function buildFavoriteCard(movie) {
 
 async function renderFavorites() {
     clearNode(favoritesList);
-    const ids = getFavoriteIds();
 
-    if (!ids.length) {
-        const hint = document.createElement("p");
-        hint.className = "empty-hint";
-        hint.textContent = "You haven't favorited any movies yet. Browse movies and tap the heart icon to add some.";
-        favoritesList.appendChild(hint);
-        return;
-    }
 
     if (!movieCatalog) {
         try {
-            const [current, comingSoon] = await Promise.all([
-                apiRequest("/api/movies"),
-                apiRequest("/api/movies/coming-soon")
-            ]);
-            movieCatalog = [...current, ...comingSoon];
+            movieCatalog = await apiRequest("/api/profile/favorites");
+            setFavoriteIds(movieCatalog.map(movie => movie.id));
         } catch (error) {
             movieCatalog = [];
         }
     }
 
-    const favoriteMovies = movieCatalog.filter(movie => ids.includes(movie.id));
+    const favoriteMovies = movieCatalog;
     if (!favoriteMovies.length) {
         const hint = document.createElement("p");
         hint.className = "empty-hint";
-        hint.textContent = "Your favorited movies aren't in the current catalogue.";
+        hint.textContent = "You haven't favorited any movies yet. Browse movies and tap the heart icon to add some.";
         favoritesList.appendChild(hint);
         return;
     }

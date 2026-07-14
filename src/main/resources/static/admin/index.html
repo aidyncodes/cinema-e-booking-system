@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,6 +6,8 @@
     <title>Admin Portal - CES Cinema</title>
     <link rel="stylesheet" href="/styles.css">
     <link rel="stylesheet" href="/admin/admin.css">
+    <script src="/session.js" defer></script>
+    <script src="/admin/admin-guard.js" defer></script>
 </head>
 <body>
 <header class="topbar">
@@ -20,7 +22,7 @@
             <a class="nav-link" href="/admin/promotions.html">Promotions</a>
             <a class="nav-link" href="/admin/users.html">Users</a>
             <a class="nav-link" href="/admin/showtimes.html">Showtimes</a>
-            <a class="nav-link" href="/index.html">Exit</a>
+            <a class="nav-link" href="/index.html">Movie Home</a>
         </div>
     </nav>
 </header>
@@ -36,30 +38,32 @@
 
     <section class="admin-grid" aria-label="Admin menu">
         <a class="admin-card" href="/admin/manage-movies.html">
-            <span class="icon" aria-hidden="true">🎬</span>
+            <span class="icon" aria-hidden="true">MOV</span>
             <h2>Manage Movies</h2>
             <p>Add, edit, or remove movies from the catalogue.</p>
-            <span class="go">Open &rarr;</span>
+            <span class="go">Open</span>
         </a>
         <a class="admin-card" href="/admin/promotions.html">
-            <span class="icon" aria-hidden="true">🏷️</span>
+            <span class="icon" aria-hidden="true">PRM</span>
             <h2>Promotions</h2>
             <p>Create promo codes and send promotional emails.</p>
-            <span class="go">Open &rarr;</span>
+            <span class="go">Open</span>
         </a>
         <a class="admin-card" href="/admin/users.html">
-            <span class="icon" aria-hidden="true">👥</span>
+            <span class="icon" aria-hidden="true">USR</span>
             <h2>Users</h2>
             <p>View customer accounts and manage their status.</p>
-            <span class="go">Open &rarr;</span>
+            <span class="go">Open</span>
         </a>
         <a class="admin-card" href="/admin/showtimes.html">
-            <span class="icon" aria-hidden="true">🕒</span>
+            <span class="icon" aria-hidden="true">TIM</span>
             <h2>Showtimes</h2>
             <p>Schedule shows into auditoriums and set times.</p>
-            <span class="go">Open &rarr;</span>
+            <span class="go">Open</span>
         </a>
     </section>
 </main>
 </body>
 </html>
+
+

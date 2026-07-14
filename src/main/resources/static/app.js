@@ -1,4 +1,4 @@
-const movieSections = document.getElementById("movieSections");
+﻿const movieSections = document.getElementById("movieSections");
 const resultSummary = document.getElementById("resultSummary");
 const searchForm = document.getElementById("searchForm");
 const searchInput = document.getElementById("searchInput");
@@ -80,20 +80,27 @@ function buildFavoriteButton(movie) {
 
     function refresh() {
         const active = isLoggedIn() && isFavorite(movie.id);
+        const label = active ? `Remove ${movie.title} from favorites` : `Add ${movie.title} to favorites`;
         btn.classList.toggle("active", active);
-        btn.textContent = "♥";
-        btn.setAttribute("aria-label", active ? `Remove ${movie.title} from favorites` : `Add ${movie.title} to favorites`);
+        btn.textContent = "\u2665";
+        btn.title = label;
+        btn.setAttribute("aria-label", label);
     }
 
-    btn.addEventListener("click", event => {
+    btn.addEventListener("click", async event => {
         event.preventDefault();
         if (!isLoggedIn()) {
             const redirect = window.location.pathname + window.location.search;
             window.location.href = `/login.html?redirect=${encodeURIComponent(redirect)}`;
             return;
         }
-        toggleFavorite(movie.id);
-        refresh();
+        btn.disabled = true;
+        try {
+            await toggleFavorite(movie.id);
+            refresh();
+        } finally {
+            btn.disabled = false;
+        }
     });
 
     refresh();
@@ -257,6 +264,9 @@ async function loadHome() {
         state.currentlyRunning = currentlyRunning;
         state.comingSoon = comingSoon;
         state.genres = genres;
+        if (isLoggedIn()) {
+            await loadFavoriteIds();
+        }
 
         renderGenreOptions(genres);
         updateFilterSummary();

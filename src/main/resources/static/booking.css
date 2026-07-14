@@ -1,4 +1,4 @@
-/* ── Booking page layout ── */
+﻿/* Booking page layout */
 .booking-page {
     padding-top: 12px;
 }
@@ -11,7 +11,7 @@
     align-items: start;
 }
 
-/* ── Left column ── */
+/* Left column */
 .booking-left {
     display: flex;
     flex-direction: column;
@@ -74,7 +74,7 @@
     color: var(--accent);
 }
 
-/* ── Ticket controls ── */
+/* Ticket controls */
 .ticket-section {
     padding: 20px;
     border: 1px solid var(--line);
@@ -181,7 +181,7 @@
     font-size: 18px;
 }
 
-/* ── Right column: Seat map ── */
+/* Right column: Seat map */
 .booking-right {
     padding: 20px;
     border: 1px solid var(--line);
@@ -282,7 +282,7 @@
     letter-spacing: 0.12em;
 }
 
-/* ── Bottom actions ── */
+/* Bottom actions */
 .booking-actions {
     display: flex;
     justify-content: flex-end;
@@ -292,7 +292,7 @@
     border-top: 1px solid var(--line);
 }
 
-/* ── Responsive ── */
+/* Responsive */
 @media (max-width: 920px) {
     .booking-grid {
         grid-template-columns: 1fr;
@@ -361,3 +361,4 @@
         justify-content: center;
     }
 }
+

@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     color-scheme: dark;
     --ink: #ffffff;
     --muted: #9a9a9a;
@@ -42,7 +42,7 @@ a {
     color: inherit;
 }
 
-/* ── Nav ── */
+/* Nav */
 
 .topbar {
     position: sticky;
@@ -146,7 +146,7 @@ a {
     background: var(--surface-strong);
 }
 
-/* ── Page shell ── */
+/* Page shell */
 
 .page {
     width: min(1180px, calc(100% - 32px));
@@ -194,7 +194,7 @@ h1 {
     line-height: 1.55;
 }
 
-/* ── Toolbar ── */
+/* Toolbar */
 
 .toolbar {
     display: grid;
@@ -274,7 +274,7 @@ h1 {
     border-radius: 0 5px 5px 0;
 }
 
-/* ── Filter dropdown ── */
+/* Filter dropdown */
 
 .filter-menu {
     position: relative;
@@ -338,7 +338,7 @@ h1 {
     margin-top: 16px;
 }
 
-/* ── Results summary ── */
+/* Results summary */
 
 .tab-group {
     display: flex;
@@ -384,7 +384,7 @@ h1 {
     font-weight: 600;
 }
 
-/* ── Section stack ── */
+/* Section stack */
 
 .section-stack {
     display: grid;
@@ -421,7 +421,7 @@ h1 {
     white-space: nowrap;
 }
 
-/* ── Movie grid & cards ── */
+/* Movie grid & cards */
 
 .movie-grid {
     display: grid;
@@ -605,7 +605,7 @@ h1 {
     color: #ff4060;
 }
 
-/* ── States ── */
+/* States */
 
 .empty-state,
 .error-state,
@@ -618,7 +618,7 @@ h1 {
     font-weight: 600;
 }
 
-/* ── Detail page ── */
+/* Detail page */
 
 .detail-layout {
     display: grid;
@@ -655,7 +655,7 @@ h1 {
     line-height: 1.65;
 }
 
-/* ── Showtimes ── */
+/* Showtimes */
 
 .showtimes {
     margin-top: 30px;
@@ -691,7 +691,7 @@ h1 {
     letter-spacing: 0.02em;
 }
 
-/* ── Trailer ── */
+/* Trailer */
 
 .trailer-section {
     margin-top: 36px;
@@ -720,7 +720,7 @@ h1 {
     display: none !important;
 }
 
-/* ── Responsive ── */
+/* Responsive */
 
 @media (max-width: 820px) {
     .page-header,
@@ -810,3 +810,5 @@ h1 {
         gap: 4px;
     }
 }
+
+

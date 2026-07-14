@@ -19,6 +19,7 @@
         </a>
         <div class="nav-links">
             <a class="nav-link" href="/index.html">Movies</a>
+            <a class="nav-link" href="/favorites.html">Favorites</a>
             <a class="nav-link" href="/order-confirmation.html">Orders</a>
             <span id="navAuthSlot" class="nav-auth-slot"></span>
         </div>
@@ -73,6 +74,34 @@
                 </div>
                 <div class="form-actions" style="align-items:flex-start;">
                     <button class="button" type="submit" id="accountSaveBtn" style="width:auto;">Save Changes</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Password -->
+        <section class="profile-section" id="passwordSection">
+            <div class="profile-section-header"><h2>Change Password</h2></div>
+            <div id="passwordBanner" class="form-banner hidden" role="alert"></div>
+            <form id="passwordForm" novalidate>
+                <div class="field">
+                    <label for="currentPassword">Current password<span class="required-mark">*</span></label>
+                    <input class="text-input" type="password" id="currentPassword" autocomplete="current-password" required>
+                    <div class="field-error" id="currentPasswordError"></div>
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label for="newPassword">New password<span class="required-mark">*</span></label>
+                        <input class="text-input" type="password" id="newPassword" autocomplete="new-password" required>
+                        <div class="field-error" id="newPasswordError"></div>
+                    </div>
+                    <div class="field">
+                        <label for="confirmNewPassword">Confirm new password<span class="required-mark">*</span></label>
+                        <input class="text-input" type="password" id="confirmNewPassword" autocomplete="new-password" required>
+                        <div class="field-error" id="confirmNewPasswordError"></div>
+                    </div>
+                </div>
+                <div class="form-actions" style="align-items:flex-start;">
+                    <button class="button" type="submit" id="passwordSaveBtn" style="width:auto;">Change Password</button>
                 </div>
             </form>
         </section>

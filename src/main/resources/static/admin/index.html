@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - CES Cinema</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+<header class="topbar">
+    <nav class="nav-shell" aria-label="Primary navigation">
+        <a class="brand" href="/admin/index.html" aria-label="CES Cinema admin home">
+            <span class="brand-mark">CES</span>
+            <span>CES Cinema</span>
+            <span class="admin-badge">Admin</span>
+        </a>
+        <div class="nav-links">
+            <a class="nav-link" href="/admin/manage-movies.html">Movies</a>
+            <a class="nav-link" href="/admin/promotions.html">Promotions</a>
+            <a class="nav-link" href="/admin/users.html">Users</a>
+            <a class="nav-link" href="/admin/showtimes.html">Showtimes</a>
+            <a class="nav-link" href="/index.html">Exit</a>
+        </div>
+    </nav>
+</header>
+
+<main class="page">
+    <section class="page-header">
+        <div>
+            <p class="eyebrow">Administrator</p>
+            <h1>Admin Dashboard</h1>
+            <p class="page-subtitle">Welcome back. Use the menu below to manage the theatre catalogue, promotions, user accounts, and scheduled showtimes.</p>
+        </div>
+    </section>
+
+    <section class="admin-grid" aria-label="Admin menu">
+        <a class="admin-card" href="/admin/manage-movies.html">
+            <span class="icon" aria-hidden="true">🎬</span>
+            <h2>Manage Movies</h2>
+            <p>Add, edit, or remove movies from the catalogue.</p>
+            <span class="go">Open &rarr;</span>
+        </a>
+        <a class="admin-card" href="/admin/promotions.html">
+            <span class="icon" aria-hidden="true">🏷️</span>
+            <h2>Promotions</h2>
+            <p>Create promo codes and send promotional emails.</p>
+            <span class="go">Open &rarr;</span>
+        </a>
+        <a class="admin-card" href="/admin/users.html">
+            <span class="icon" aria-hidden="true">👥</span>
+            <h2>Users</h2>
+            <p>View customer accounts and manage their status.</p>
+            <span class="go">Open &rarr;</span>
+        </a>
+        <a class="admin-card" href="/admin/showtimes.html">
+            <span class="icon" aria-hidden="true">🕒</span>
+            <h2>Showtimes</h2>
+            <p>Schedule shows into auditoriums and set times.</p>
+            <span class="go">Open &rarr;</span>
+        </a>
+    </section>
+</main>
+</body>
+</html>

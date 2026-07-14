@@ -1,0 +1,87 @@
+/* Admin portal styles — layered on top of the shared /styles.css */
+
+/* Small "Prototype" badge next to the brand so it's obvious in the demo */
+.admin-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 22px;
+    margin-left: 4px;
+    padding: 0 8px;
+    border: 1px solid rgba(245, 197, 24, 0.3);
+    border-radius: 3px;
+    background: rgba(245, 197, 24, 0.1);
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* Menu grid on the admin home page */
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 18px;
+}
+
+.admin-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.admin-card:hover,
+.admin-card:focus-visible {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: var(--shadow);
+}
+
+.admin-card .icon {
+    font-size: 30px;
+    line-height: 1;
+}
+
+.admin-card h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.admin-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.admin-card .go {
+    margin-top: auto;
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Placeholder notice used on the stub sub-pages */
+.prototype-note {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    padding: 24px;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.prototype-note strong {
+    color: var(--ink);
+}

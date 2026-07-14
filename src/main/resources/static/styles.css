@@ -111,6 +111,41 @@ a {
     background: var(--surface-strong);
 }
 
+.nav-auth-slot {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 6px;
+    padding-left: 10px;
+    border-left: 1px solid var(--line);
+}
+
+.nav-logout-btn,
+.nav-register-link {
+    border: 0;
+    background: transparent;
+}
+
+.nav-logout-btn {
+    color: #cccccc;
+}
+
+.nav-logout-btn:hover,
+.nav-logout-btn:focus-visible {
+    color: #ffffff;
+    background: var(--surface-strong);
+}
+
+.nav-register-link {
+    color: var(--accent);
+}
+
+.nav-register-link:hover,
+.nav-register-link:focus-visible {
+    color: #ff4060;
+    background: var(--surface-strong);
+}
+
 /* ── Page shell ── */
 
 .page {
@@ -395,6 +430,7 @@ h1 {
 }
 
 .movie-card {
+    position: relative;
     min-width: 0;
     display: flex;
     flex-direction: column;
@@ -415,6 +451,66 @@ h1 {
     aspect-ratio: 2 / 3;
     background: #222222;
     overflow: hidden;
+}
+
+.favorite-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    background: rgba(13, 13, 13, 0.65);
+    color: #ffffff;
+    font-size: 16px;
+    line-height: 1;
+    transition: transform 140ms ease, background 140ms ease, color 140ms ease, border-color 140ms ease;
+}
+
+.favorite-btn:hover,
+.favorite-btn:focus-visible {
+    transform: scale(1.08);
+    background: rgba(13, 13, 13, 0.85);
+}
+
+.favorite-btn.active {
+    color: var(--accent);
+    border-color: rgba(227, 24, 55, 0.55);
+}
+
+.favorite-toggle {
+    margin: -4px 0 14px;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 0 16px;
+    background: var(--surface);
+    color: #cccccc;
+    font-weight: 800;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+}
+
+.favorite-toggle:hover,
+.favorite-toggle:focus-visible {
+    background: var(--surface-strong);
+    color: #ffffff;
+}
+
+.favorite-toggle.active {
+    border-color: rgba(227, 24, 55, 0.5);
+    background: rgba(227, 24, 55, 0.1);
+    color: #ff6680;
 }
 
 .movie-poster {

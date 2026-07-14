@@ -73,6 +73,32 @@ function renderGenreOptions(genres) {
 
     genreFilter.value = currentValue;
 }
+function buildFavoriteButton(movie) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "favorite-btn";
+
+    function refresh() {
+        const active = isLoggedIn() && isFavorite(movie.id);
+        btn.classList.toggle("active", active);
+        btn.textContent = "♥";
+        btn.setAttribute("aria-label", active ? `Remove ${movie.title} from favorites` : `Add ${movie.title} to favorites`);
+    }
+
+    btn.addEventListener("click", event => {
+        event.preventDefault();
+        if (!isLoggedIn()) {
+            const redirect = window.location.pathname + window.location.search;
+            window.location.href = `/login.html?redirect=${encodeURIComponent(redirect)}`;
+            return;
+        }
+        toggleFavorite(movie.id);
+        refresh();
+    });
+
+    refresh();
+    return btn;
+}
 
 function buildMovieCard(movie) {
     const article = document.createElement("article");
@@ -94,6 +120,9 @@ function buildMovieCard(movie) {
         poster.src = `https://placehold.co/300x450/f3efe8/171717?text=${encodeURIComponent(movie.title || "Movie")}`;
     }, { once: true });
     posterLink.appendChild(poster);
+
+    // Sibling of posterLink (not nested inside the <a>) so it's its own click target.
+    const favoriteBtn = buildFavoriteButton(movie);
 
     const copy = document.createElement("div");
     copy.className = "movie-copy";
@@ -129,7 +158,7 @@ function buildMovieCard(movie) {
     link.textContent = "Details";
 
     copy.append(title, meta, link);
-    article.append(posterLink, copy);
+    article.append(posterLink, favoriteBtn, copy);
     return article;
 }
 

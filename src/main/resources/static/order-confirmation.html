@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Confirmation</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/session.js" defer></script>
+    <script src="/nav-auth.js" defer></script>
     <style>
         :root {
             color-scheme: light;
@@ -79,6 +82,19 @@
     </style>
 </head>
 <body>
+<header class="topbar">
+    <nav class="nav-shell" aria-label="Primary navigation">
+        <a class="brand" href="/index.html" aria-label="CES Cinema home">
+            <span class="brand-mark">CES</span>
+            <span>CES Cinema</span>
+        </a>
+        <div class="nav-links">
+            <a class="nav-link" href="/index.html">Movies</a>
+            <a class="nav-link" href="/order-confirmation.html">Orders</a>
+            <span id="navAuthSlot" class="nav-auth-slot"></span>
+        </div>
+    </nav>
+</header>
 <main>
     <section class="panel">
         <h1>Order Confirmed</h1>

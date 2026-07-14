@@ -143,6 +143,31 @@ function renderTrailer(movie) {
     return section;
 }
 
+function buildFavoriteToggle(movie) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "favorite-toggle";
+
+    function refresh() {
+        const active = isLoggedIn() && isFavorite(movie.id);
+        btn.classList.toggle("active", active);
+        btn.textContent = active ? "♥ Remove from Favorites" : "♡ Add to Favorites";
+    }
+
+    btn.addEventListener("click", () => {
+        if (!isLoggedIn()) {
+            const redirect = window.location.pathname + window.location.search;
+            window.location.href = `/login.html?redirect=${encodeURIComponent(redirect)}`;
+            return;
+        }
+        toggleFavorite(movie.id);
+        refresh();
+    });
+
+    refresh();
+    return btn;
+}
+
 function renderMovie(movie) {
     document.title = `${movie.title} - CES Cinema`;
     clearNode(detailsRoot);
@@ -166,6 +191,8 @@ function renderMovie(movie) {
     const title = document.createElement("h1");
     title.textContent = movie.title;
 
+    const favoriteToggle = buildFavoriteToggle(movie);
+
     const meta = document.createElement("div");
     meta.className = "meta-row";
     meta.append(
@@ -181,6 +208,7 @@ function renderMovie(movie) {
     copy.append(
         eyebrow,
         title,
+        favoriteToggle,
         meta,
         description,
         renderShowtimes(movie), //changed from renderShowtimes(movie.showtimes)

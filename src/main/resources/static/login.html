@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In - CES Cinema</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/auth.css">
+    <script src="/session.js" defer></script>
+    <script src="/nav-auth.js" defer></script>
+    <script src="/login.js" defer></script>
+</head>
+<body>
+<header class="topbar">
+    <nav class="nav-shell" aria-label="Primary navigation">
+        <a class="brand" href="/index.html" aria-label="CES Cinema home">
+            <span class="brand-mark">CES</span>
+            <span>CES Cinema</span>
+        </a>
+        <div class="nav-links">
+            <a class="nav-link" href="/index.html">Movies</a>
+            <a class="nav-link" href="/order-confirmation.html">Orders</a>
+            <span id="navAuthSlot" class="nav-auth-slot"></span>
+        </div>
+    </nav>
+</header>
+
+<main class="auth-page">
+    <section class="auth-card">
+        <h1>Log In</h1>
+        <p class="auth-subtitle">Welcome back. Log in to manage your bookings and profile.</p>
+
+        <div id="formBanner" class="form-banner hidden" role="alert"></div>
+
+        <form id="loginForm" novalidate>
+            <div class="field">
+                <label for="email">Email<span class="required-mark">*</span></label>
+                <input class="text-input" type="email" id="email" name="email" autocomplete="email" required>
+                <div class="field-error" id="emailError"></div>
+            </div>
+
+            <div class="field">
+                <label for="password">Password<span class="required-mark">*</span></label>
+                <input class="text-input" type="password" id="password" name="password" autocomplete="current-password" required>
+                <div class="field-error" id="passwordError"></div>
+            </div>
+
+            <div class="auth-links">
+                <span></span>
+                <a href="/forgot-password.html">Forgot password?</a>
+            </div>
+
+            <div class="form-actions">
+                <button class="button" type="submit" id="submitBtn">Log In</button>
+            </div>
+        </form>
+
+        <div class="auth-links" style="margin-top:22px; justify-content:center;">
+            <span>Don't have an account? <a href="/register.html">Sign up</a></span>
+        </div>
+    </section>
+</main>
+</body>
+</html>

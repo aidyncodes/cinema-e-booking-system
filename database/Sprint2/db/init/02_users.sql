@@ -175,6 +175,21 @@ WHERE NOT EXISTS (
     SELECT 1 FROM payment_cards WHERE user_id = 2 AND last_four = '4444'
 );
 
+INSERT INTO payment_cards
+(user_id, cardholder_name, card_brand, last_four, expiration_month, expiration_year, encrypted_card_data, encryption_iv)
+SELECT
+    2,
+    'Demo Customer',
+    'Discover',
+    '0005',
+    8,
+    2031,
+    UNHEX('B18A6D4F9210CC77E533A9F04612D8AB'),
+    UNHEX('102132435465768798A9BACBDCEDFE0F')
+WHERE NOT EXISTS (
+    SELECT 1 FROM payment_cards WHERE user_id = 2 AND last_four = '0005'
+);
+
 INSERT IGNORE INTO favorites
 (user_id, movie_id)
 VALUES

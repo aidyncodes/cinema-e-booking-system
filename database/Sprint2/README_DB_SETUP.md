@@ -60,7 +60,7 @@ Demo accounts seeded by `02_users.sql`:
 | Email | Password | Role | Status | Purpose |
 | --- | --- | --- | --- | --- |
 | `admin@cinema.com` | `Password123!` | `ADMIN` | `ACTIVE` | Admin login and admin redirect testing |
-| `customer@cinema.com` | `Password123!` | `CUSTOMER` | `ACTIVE` | Customer login, profile, payment cards, and favorites testing |
+| `customer@cinema.com` | `Password123!` | `CUSTOMER` | `ACTIVE` | Customer login, profile with 3 payment cards, and favorites testing |
 | `inactive@cinema.com` | `Password123!` | `CUSTOMER` | `INACTIVE` | Inactive account login validation testing |
 
 The password is stored in the database as a BCrypt hash, not as plaintext.

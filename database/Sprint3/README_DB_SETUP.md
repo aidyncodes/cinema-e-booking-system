@@ -142,3 +142,35 @@ spring.datasource.password=mysqlpass
 spring.sql.init.mode=never
 spring.jpa.hibernate.ddl-auto=none
 ```
+
+## Admin showtime API
+
+The showtime endpoints require a logged-in session whose role is `ADMIN`.
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| `GET` | `/api/admin/showtimes/movies` | Movie options for the schedule form |
+| `GET` | `/api/admin/showtimes/showrooms` | Showroom options, including layout sizes |
+| `GET` | `/api/admin/showtimes` | All scheduled showtimes |
+| `POST` | `/api/admin/showtimes` | Schedule a movie |
+
+Example request body:
+
+```json
+{
+  "movieId": 1,
+  "date": "2026-07-28",
+  "time": "19:30:00",
+  "showroomId": 2
+}
+```
+
+A successful create returns `201 Created`. A duplicate showroom/date/time
+returns `409 Conflict` with:
+
+```json
+{
+  "error": "SHOWTIME_CONFLICT",
+  "message": "Showroom 2 already has a showtime at 2026-07-28 19:30"
+}
+```

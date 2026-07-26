@@ -47,6 +47,12 @@ public class GlobalExceptionHandler {
                 .body(Map.of("error", "INVALID_TOKEN", "message", ex.getMessage()));
     }
 
+    @ExceptionHandler(AdminAccessRequiredException.class)
+    public ResponseEntity<Map<String, String>> handleAdminAccessRequired(AdminAccessRequiredException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(Map.of("error", "ADMIN_ACCESS_REQUIRED", "message", ex.getMessage()));
+    }
+
     // Triggered by @Valid on request DTOs (RegisterRequest, LoginRequest, etc.)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {

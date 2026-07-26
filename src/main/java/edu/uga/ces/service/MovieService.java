@@ -2,6 +2,7 @@ package edu.uga.ces.service;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
+import edu.uga.ces.dto.MovieCreateRequest;
 import edu.uga.ces.dto.MovieDetail;
 import edu.uga.ces.dto.MovieSummary;
 import edu.uga.ces.exception.MovieNotFoundException;
@@ -60,6 +61,23 @@ public class MovieService {
         return toDetail(movie);
     }
 
+    // Admin "Add Movie". No custom repository method needed - JpaRepository
+    // already gives us .save() for a plain insert.
+    public MovieDetail createMovie(MovieCreateRequest request) {
+        Movie movie = new Movie();
+        movie.setTitle(request.title().trim());
+        movie.setGenre(request.genre().trim());
+        movie.setStatus(request.status());
+        movie.setRating(request.rating());
+        movie.setDescription(request.description());
+        movie.setPosterUrl(request.posterUrl());
+        movie.setTrailerUrl(request.trailerUrl());
+        movie.setShowtimes(writeShowtimes(request.showtimes()));
+
+        movie = movieRepository.save(movie);
+        return toDetail(movie);
+    }
+
     // mapping helpers, entity to DTO
 
     private MovieSummary toSummary(Movie m) {
@@ -83,5 +101,11 @@ public class MovieService {
         } catch (Exception e) {
             return Collections.emptyList(); // bad data shouldn't crash the page
         }
+    }
+
+    // the other direction of parseShowtimes, for saving a new movie
+    private String writeShowtimes(List<String> showtimes) {
+        if (showtimes == null || showtimes.isEmpty()) return "[]";
+        return jsonMapper.writeValueAsString(showtimes);
     }
 }

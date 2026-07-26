@@ -23,6 +23,18 @@ public class GlobalExceptionHandler {
                 .body(Map.of("error", "NOT_FOUND", "message", ex.getMessage()));
     }
 
+    @ExceptionHandler(ShowroomNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleShowroomNotFound(ShowroomNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", "NOT_FOUND", "message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ShowtimeConflictException.class)
+    public ResponseEntity<Map<String, String>> handleShowtimeConflict(ShowtimeConflictException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("error", "SHOWTIME_CONFLICT", "message", ex.getMessage()));
+    }
+
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<Map<String, String>> handleEmailExists(EmailAlreadyExistsException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)

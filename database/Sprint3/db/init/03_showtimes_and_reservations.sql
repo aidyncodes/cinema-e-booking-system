@@ -68,9 +68,7 @@ CREATE TABLE IF NOT EXISTS seat_reservations (
     CONSTRAINT chk_seat_reservations_status
         CHECK (status IN ('HELD', 'BOOKED')),
     CONSTRAINT chk_seat_reservations_ticket_type
-        CHECK (ticket_type IN ('ADULT', 'CHILD', 'SENIOR')),
-    CONSTRAINT chk_seat_reservations_owner
-        CHECK (session_id IS NOT NULL OR user_id IS NOT NULL)
+        CHECK (ticket_type IN ('ADULT', 'CHILD', 'SENIOR'))
 );
 
 CREATE INDEX idx_showtimes_movie_date

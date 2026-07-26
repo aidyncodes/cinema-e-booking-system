@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/admin/admin.css">
     <script src="/session.js" defer></script>
     <script src="/admin/admin-guard.js" defer></script>
+    <script src="/admin/manage-movies.js" defer></script>
 </head>
 <body>
 <header class="topbar">
@@ -35,17 +36,71 @@
     <section class="page-header">
         <div>
             <p class="eyebrow">Administrator</p>
-            <h1>Manage Movies</h1>
-            <p class="page-subtitle">Add, edit, and remove movies from the theatre catalogue.</p>
+            <h1>Add Movie</h1>
+            <p class="page-subtitle">Add a movie to the theatre catalogue. Required fields are marked with an asterisk.</p>
         </div>
     </section>
 
-    <p class="prototype-note">
-        <strong>Prototype page.</strong> This screen is a placeholder for the navigation demo.
-        Movie management (add / edit / remove) will be built in a later sprint.
-    </p>
+    <section class="admin-form-card" aria-labelledby="movieFormHeading">
+        <h2 id="movieFormHeading">Movie details</h2>
+        <div id="movieFormBanner" class="admin-form-banner hidden" role="status" aria-live="polite"></div>
+
+        <form id="movieForm" novalidate>
+            <div class="admin-form-grid">
+                <div class="admin-field admin-field-wide">
+                    <label for="title">Title <span aria-hidden="true">*</span></label>
+                    <input id="title" name="title" type="text" maxlength="255" required>
+                    <span id="titleError" class="admin-field-error"></span>
+                </div>
+
+                <div class="admin-field">
+                    <label for="genre">Genre <span aria-hidden="true">*</span></label>
+                    <input id="genre" name="genre" type="text" maxlength="100" placeholder="e.g. Action" required>
+                    <span id="genreError" class="admin-field-error"></span>
+                </div>
+
+                <div class="admin-field">
+                    <label for="status">Release status <span aria-hidden="true">*</span></label>
+                    <select id="status" name="status" required>
+                        <option value="">Select a status</option>
+                        <option value="CURRENTLY_RUNNING">Currently Running</option>
+                        <option value="COMING_SOON">Coming Soon</option>
+                    </select>
+                    <span id="statusError" class="admin-field-error"></span>
+                </div>
+
+                <div class="admin-field">
+                    <label for="rating">Rating</label>
+                    <input id="rating" name="rating" type="text" maxlength="20" placeholder="e.g. PG-13">
+                    <span id="ratingError" class="admin-field-error"></span>
+                </div>
+
+                <div class="admin-field admin-field-wide">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="5" placeholder="Short synopsis"></textarea>
+                    <span id="descriptionError" class="admin-field-error"></span>
+                </div>
+
+                <div class="admin-field admin-field-wide">
+                    <label for="posterUrl">Poster URL</label>
+                    <input id="posterUrl" name="posterUrl" type="url" maxlength="1000" placeholder="https://example.com/poster.jpg">
+                    <span id="posterUrlError" class="admin-field-error"></span>
+                </div>
+
+                <div class="admin-field admin-field-wide">
+                    <label for="trailerUrl">Trailer URL</label>
+                    <input id="trailerUrl" name="trailerUrl" type="url" maxlength="1000" placeholder="https://youtube.com/watch?v=...">
+                    <span id="trailerUrlError" class="admin-field-error"></span>
+                </div>
+            </div>
+
+            <div class="admin-form-actions">
+                <button class="button secondary" type="reset">Clear</button>
+                <button id="movieSubmitBtn" class="button" type="submit">Add Movie</button>
+            </div>
+        </form>
+    </section>
 </main>
 </body>
 </html>
-
 

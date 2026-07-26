@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/admin/admin.css">
     <script src="/session.js" defer></script>
     <script src="/admin/admin-guard.js" defer></script>
+    <script src="/admin/showtimes.js" defer></script>
 </head>
 <body>
 <header class="topbar">
@@ -35,17 +36,76 @@
     <section class="page-header">
         <div>
             <p class="eyebrow">Administrator</p>
-            <h1>Showtimes</h1>
-            <p class="page-subtitle">Schedule shows into auditoriums and set their dates and times.</p>
+            <h1>Schedule Showtime</h1>
+            <p class="page-subtitle">Select a movie, date, time, and showroom. The system prevents a showroom from being double-booked.</p>
         </div>
     </section>
 
-    <p class="prototype-note">
-        <strong>Prototype page.</strong> This screen is a placeholder for the navigation demo.
-        Showtime scheduling will be built in a later sprint.
-    </p>
+    <section class="admin-form-card" aria-labelledby="showtimeFormHeading">
+        <h2 id="showtimeFormHeading">Showtime details</h2>
+        <div id="showtimeFormBanner" class="admin-form-banner hidden" role="status" aria-live="polite"></div>
+
+        <form id="showtimeForm" novalidate>
+            <div class="admin-form-grid">
+                <div class="admin-field admin-field-wide">
+                    <label for="movieId">Movie <span aria-hidden="true">*</span></label>
+                    <select id="movieId" name="movieId" required>
+                        <option value="">Loading movies...</option>
+                    </select>
+                    <span id="movieIdError" class="admin-field-error"></span>
+                </div>
+
+                <div class="admin-field">
+                    <label for="date">Date <span aria-hidden="true">*</span></label>
+                    <input id="date" name="date" type="date" required>
+                    <span id="dateError" class="admin-field-error"></span>
+                </div>
+
+                <div class="admin-field">
+                    <label for="time">Time <span aria-hidden="true">*</span></label>
+                    <input id="time" name="time" type="time" required>
+                    <span id="timeError" class="admin-field-error"></span>
+                </div>
+
+                <div class="admin-field admin-field-wide">
+                    <label for="showroomId">Showroom <span aria-hidden="true">*</span></label>
+                    <select id="showroomId" name="showroomId" required>
+                        <option value="">Loading showrooms...</option>
+                    </select>
+                    <span id="showroomIdError" class="admin-field-error"></span>
+                    <span id="showroomHint" class="admin-field-hint"></span>
+                </div>
+            </div>
+
+            <div class="admin-form-actions">
+                <button class="button secondary" type="reset">Clear</button>
+                <button id="showtimeSubmitBtn" class="button" type="submit">Add Showtime</button>
+            </div>
+        </form>
+    </section>
+
+    <section class="admin-list-card" aria-labelledby="scheduledHeading">
+        <div class="admin-list-heading">
+            <h2 id="scheduledHeading">Scheduled showtimes</h2>
+            <button id="refreshShowtimesBtn" class="button secondary" type="button">Refresh</button>
+        </div>
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>Movie</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Showroom</th>
+                </tr>
+                </thead>
+                <tbody id="showtimesBody">
+                <tr><td colspan="4" class="admin-table-state">Loading showtimes...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
 </main>
 </body>
 </html>
-
 

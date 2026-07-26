@@ -73,6 +73,16 @@ public class ShowtimeService {
     }
 
     @Transactional(readOnly = true)
+    public List<ShowtimeResponse> getShowtimesForMovie(Long movieId) {
+        if (!movieRepository.existsById(movieId)) {
+            throw new MovieNotFoundException(movieId);
+        }
+        return showtimeRepository.findAllByMovieId(movieId).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<ShowtimeMovieOption> getMovieOptions() {
         return movieRepository.findAll().stream()
                 .sorted((left, right) -> left.getTitle().compareToIgnoreCase(right.getTitle()))

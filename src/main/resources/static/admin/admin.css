@@ -1,7 +1,4 @@
-﻿/* Admin portal styles layered on top of the shared /styles.css */
-
-/* Small "Prototype" badge next to the brand so it's obvious in the demo */
-.admin-badge {
+﻿.admin-badge {
     display: inline-flex;
     align-items: center;
     min-height: 22px;
@@ -84,4 +81,187 @@
 
 .prototype-note strong {
     color: var(--ink);
+}
+
+.admin-form-card,
+.admin-list-card {
+    padding: 24px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+}
+
+.admin-list-card {
+    margin-top: 24px;
+}
+
+.admin-form-card > h2,
+.admin-list-heading h2 {
+    margin: 0;
+    color: var(--ink);
+    font-size: 20px;
+}
+
+.admin-form-banner {
+    margin: 18px 0;
+    padding: 12px 14px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    line-height: 1.45;
+}
+
+.admin-form-banner.hidden {
+    display: none;
+}
+
+.admin-form-banner.success {
+    border-color: rgba(78, 201, 176, 0.55);
+    background: rgba(78, 201, 176, 0.12);
+    color: #8fe3d2;
+}
+
+.admin-form-banner.error {
+    border-color: rgba(227, 24, 55, 0.6);
+    background: rgba(227, 24, 55, 0.12);
+    color: #ff8da0;
+}
+
+.admin-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.admin-field {
+    display: grid;
+    align-content: start;
+    gap: 7px;
+}
+
+.admin-field-wide {
+    grid-column: 1 / -1;
+}
+
+.admin-field label {
+    color: #d7d7d7;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.admin-field label span {
+    color: var(--accent);
+}
+
+.admin-field input,
+.admin-field select,
+.admin-field textarea {
+    width: 100%;
+    min-height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 10px 12px;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+}
+
+.admin-field textarea {
+    min-height: 112px;
+    resize: vertical;
+}
+
+.admin-field input:focus,
+.admin-field select:focus,
+.admin-field textarea:focus {
+    border-color: var(--accent);
+    outline: 2px solid rgba(227, 24, 55, 0.22);
+}
+
+.admin-field .invalid {
+    border-color: var(--accent);
+}
+
+.admin-field-error {
+    min-height: 18px;
+    color: #ff8da0;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.admin-field-hint {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.admin-form-actions,
+.admin-list-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.admin-form-actions {
+    justify-content: flex-end;
+    margin-top: 22px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+}
+
+.admin-list-heading {
+    margin-bottom: 18px;
+}
+
+.admin-table-wrap {
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 13px 12px;
+    border-top: 1px solid var(--line);
+    text-align: left;
+    white-space: nowrap;
+}
+
+.admin-table th {
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.admin-table td {
+    color: #e7e7e7;
+    font-size: 14px;
+}
+
+.admin-table-state {
+    color: var(--muted) !important;
+    text-align: center !important;
+}
+
+@media (max-width: 700px) {
+    .admin-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-field-wide {
+        grid-column: auto;
+    }
+
+    .admin-form-actions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .admin-form-actions .button {
+        width: 100%;
+    }
 }

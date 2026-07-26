@@ -2,7 +2,9 @@ package edu.uga.ces.controller;
 
 import edu.uga.ces.dto.MovieDetail;
 import edu.uga.ces.dto.MovieSummary;
+import edu.uga.ces.dto.ShowtimeResponse;
 import edu.uga.ces.service.MovieService;
+import edu.uga.ces.service.ShowtimeService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,9 +14,11 @@ import java.util.List;
 public class MovieController {
 
     private final MovieService movieService;
+    private final ShowtimeService showtimeService;
 
-    public MovieController(MovieService movieService) {
+    public MovieController(MovieService movieService, ShowtimeService showtimeService) {
         this.movieService = movieService;
+        this.showtimeService = showtimeService;
     }
 
     // Home page
@@ -48,5 +52,10 @@ public class MovieController {
     @GetMapping("/{id}")
     public MovieDetail getMovieById(@PathVariable Long id) {
         return movieService.getMovieById(id);
+    }
+
+    @GetMapping("/{id}/showtimes")
+    public List<ShowtimeResponse> getShowtimes(@PathVariable Long id) {
+        return showtimeService.getShowtimesForMovie(id);
     }
 }

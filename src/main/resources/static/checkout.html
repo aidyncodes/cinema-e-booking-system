@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - CES Cinema</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/checkout.css">
+    <script src="/session.js" defer></script>
+    <script src="/nav-auth.js" defer></script>
+    <script src="/checkout.js" defer></script>
+</head>
+<body>
+<header class="topbar">
+    <nav class="nav-shell" aria-label="Primary navigation">
+        <a class="brand" href="/index.html" aria-label="CES Cinema home">
+            <span class="brand-mark">CES</span>
+            <span>CES Cinema</span>
+        </a>
+        <div class="nav-links">
+            <a class="nav-link" href="/index.html">Movies</a>
+            <a class="nav-link" href="/favorites.html">Favorites</a>
+            <span id="navAuthSlot" class="nav-auth-slot"></span>
+        </div>
+    </nav>
+</header>
+
+<main class="page checkout-page">
+    <div class="back-row">
+        <a id="backToSeats" class="button secondary" href="/index.html">Back to Seat Selection</a>
+    </div>
+
+    <section class="page-header">
+        <div>
+            <p class="eyebrow">Review your selection</p>
+            <h1>Order Summary</h1>
+            <p class="page-subtitle">Confirm the booking details and choose where the confirmation email should be sent.</p>
+        </div>
+    </section>
+
+    <div id="checkoutError" class="checkout-alert hidden" role="alert"></div>
+
+    <div id="checkoutContent" class="checkout-layout hidden">
+        <section class="checkout-card" aria-labelledby="summaryHeading">
+            <h2 id="summaryHeading">Booking details</h2>
+            <dl class="summary-list">
+                <div><dt>Movie</dt><dd id="summaryMovie"></dd></div>
+                <div><dt>Showtime</dt><dd id="summaryShowtime"></dd></div>
+                <div><dt>Showroom</dt><dd id="summaryShowroom"></dd></div>
+                <div><dt>Seats</dt><dd id="summarySeats"></dd></div>
+            </dl>
+
+            <div class="ticket-summary">
+                <table>
+                    <thead>
+                    <tr><th>Ticket type</th><th>Quantity</th><th>Price each</th><th>Line total</th></tr>
+                    </thead>
+                    <tbody id="ticketSummaryBody"></tbody>
+                </table>
+            </div>
+
+            <div class="subtotal-row">
+                <span>Total before tax</span>
+                <strong id="summarySubtotal"></strong>
+            </div>
+        </section>
+
+        <section class="checkout-card" aria-labelledby="emailHeading">
+            <h2 id="emailHeading">Confirmation email</h2>
+            <p class="checkout-help">Use your account email or enter a different address for this order.</p>
+
+            <form id="emailForm" novalidate>
+                <label class="email-option">
+                    <input id="useAccountEmail" type="radio" name="emailChoice" value="account" checked>
+                    <span>
+                        <strong>Account email</strong>
+                        <span id="accountEmail">Loading...</span>
+                    </span>
+                </label>
+
+                <label class="email-option">
+                    <input id="useDifferentEmail" type="radio" name="emailChoice" value="different">
+                    <span>
+                        <strong>Use a different email</strong>
+                        <input id="differentEmail" type="email" autocomplete="email" placeholder="name@example.com" disabled>
+                        <span id="emailError" class="checkout-field-error"></span>
+                    </span>
+                </label>
+
+                <button id="paymentBtn" class="button checkout-submit" type="submit" disabled>Continue to Payment</button>
+            </form>
+        </section>
+    </div>
+</main>
+</body>
+</html>

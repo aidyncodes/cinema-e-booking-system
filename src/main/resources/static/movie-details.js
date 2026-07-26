@@ -72,7 +72,26 @@ function createPill(text, className = "pill") {
     return pill;
 }
 
-function renderShowtimes(movie) {
+function formatShowtimeDate(value) {
+    if (!value) return "";
+    const [year, month, day] = value.split("-").map(Number);
+    return new Intl.DateTimeFormat("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric"
+    }).format(new Date(year, month - 1, day));
+}
+
+function formatShowtimeTime(value) {
+    if (!value) return "";
+    const [hour, minute] = value.split(":").map(Number);
+    return new Intl.DateTimeFormat("en-US", {
+        hour: "numeric",
+        minute: "2-digit"
+    }).format(new Date(2000, 0, 1, hour, minute));
+}
+
+function renderShowtimes(movie, showtimes) {
     const section = document.createElement("section");
     section.className = "showtimes";
 
@@ -82,16 +101,27 @@ function renderShowtimes(movie) {
     const list = document.createElement("div");
     list.className = "showtime-list";
 
-    if (Array.isArray(movie.showtimes) && movie.showtimes.length) {
-        movie.showtimes.forEach(value => {
+    if (Array.isArray(showtimes) && showtimes.length) {
+        showtimes.forEach(showtime => {
             const link = document.createElement('a');
             link.className = 'showtime';
-            link.textContent = value;
+            const dateLabel = formatShowtimeDate(showtime.date);
+            const timeLabel = formatShowtimeTime(showtime.time);
+            const showroomName = showtime.showroom ? showtime.showroom.name : "Showroom";
+            link.textContent = `${dateLabel} · ${timeLabel} · ${showroomName}`;
 
             // Build booking URL with movie data
             const params = new URLSearchParams();
+            params.set('movieId', movie.id);
+            params.set('showtimeId', showtime.id);
             params.set('title', movie.title);
-            params.set('showtime', value);
+            params.set('showtime', `${dateLabel} at ${timeLabel}`);
+            params.set('showDate', showtime.date || '');
+            params.set('showTime', showtime.time || '');
+            params.set('showroomId', showtime.showroom ? showtime.showroom.id : '');
+            params.set('showroom', showroomName);
+            params.set('rows', showtime.showroom ? showtime.showroom.rowCount : '');
+            params.set('seatsPerRow', showtime.showroom ? showtime.showroom.seatsPerRow : '');
             params.set('genre', movie.genre || '');
             params.set('rating', movie.rating || '');
             params.set('status', movie.status || '');
@@ -174,7 +204,7 @@ function buildFavoriteToggle(movie) {
     return btn;
 }
 
-function renderMovie(movie) {
+function renderMovie(movie, showtimes) {
     document.title = `${movie.title} - CES Cinema`;
     clearNode(detailsRoot);
     detailsRoot.className = "detail-layout";
@@ -217,7 +247,7 @@ function renderMovie(movie) {
         favoriteToggle,
         meta,
         description,
-        renderShowtimes(movie), //changed from renderShowtimes(movie.showtimes)
+        renderShowtimes(movie, showtimes),
         renderTrailer(movie)
     );
 
@@ -233,11 +263,14 @@ async function loadMovie() {
     }
 
     try {
-        const movie = await fetchJson(`/api/movies/${encodeURIComponent(id)}`);
+        const [movie, showtimes] = await Promise.all([
+            fetchJson(`/api/movies/${encodeURIComponent(id)}`),
+            fetchJson(`/api/movies/${encodeURIComponent(id)}/showtimes`)
+        ]);
         if (isLoggedIn()) {
             await loadFavoriteIds();
         }
-        renderMovie(movie);
+        renderMovie(movie, showtimes);
     } catch (error) {
         setMessage("error-state", "Could not load this movie.");
     }

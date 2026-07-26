@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - CES Cinema</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/checkout.css">
+    <script src="/session.js" defer></script>
+    <script src="/nav-auth.js" defer></script>
+    <script src="/payment.js" defer></script>
+</head>
+<body>
+<header class="topbar">
+    <nav class="nav-shell" aria-label="Primary navigation">
+        <a class="brand" href="/index.html" aria-label="CES Cinema home">
+            <span class="brand-mark">CES</span>
+            <span>CES Cinema</span>
+        </a>
+        <div class="nav-links">
+            <a class="nav-link" href="/index.html">Movies</a>
+            <a class="nav-link" href="/favorites.html">Favorites</a>
+            <span id="navAuthSlot" class="nav-auth-slot"></span>
+        </div>
+    </nav>
+</header>
+
+<main class="page checkout-page">
+    <div class="back-row">
+        <a class="button secondary" href="/checkout.html">Back to Order Summary</a>
+    </div>
+
+    <section class="page-header">
+        <div>
+            <p class="eyebrow">Sprint 3 payment mockup</p>
+            <h1>Payment</h1>
+            <p class="page-subtitle">Review the amount and payment details. Payment processing and final order confirmation are not part of this sprint.</p>
+        </div>
+    </section>
+
+    <div id="paymentError" class="checkout-alert hidden" role="alert"></div>
+
+    <div id="paymentContent" class="payment-layout hidden">
+        <section class="checkout-card" aria-labelledby="paymentDetailsHeading">
+            <h2 id="paymentDetailsHeading">Payment details</h2>
+            <div class="mockup-notice">
+                Demo only — no card will be charged and no reservation will be finalized.
+            </div>
+
+            <div class="payment-form" aria-disabled="true">
+                <label>
+                    Name on card
+                    <input type="text" value="Demo Customer" disabled>
+                </label>
+                <label>
+                    Card number
+                    <input type="text" value="•••• •••• •••• 4242" disabled>
+                </label>
+                <div class="payment-fields-row">
+                    <label>
+                        Expiration
+                        <input type="text" value="12 / 30" disabled>
+                    </label>
+                    <label>
+                        Security code
+                        <input type="text" value="•••" disabled>
+                    </label>
+                </div>
+                <button class="button checkout-submit" type="button" disabled>Payment Processing Coming in Final Sprint</button>
+            </div>
+        </section>
+
+        <aside class="checkout-card payment-summary" aria-labelledby="paymentSummaryHeading">
+            <h2 id="paymentSummaryHeading">Payment summary</h2>
+            <dl class="summary-list">
+                <div><dt>Movie</dt><dd id="paymentMovie"></dd></div>
+                <div><dt>Showtime</dt><dd id="paymentShowtime"></dd></div>
+                <div><dt>Seats</dt><dd id="paymentSeats"></dd></div>
+                <div><dt>Email</dt><dd id="paymentEmail"></dd></div>
+            </dl>
+            <div class="subtotal-row">
+                <span>Total before tax</span>
+                <strong id="paymentSubtotal"></strong>
+            </div>
+        </aside>
+    </div>
+</main>
+</body>
+</html>

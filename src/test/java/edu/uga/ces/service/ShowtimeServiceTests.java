@@ -20,6 +20,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -124,6 +125,40 @@ class ShowtimeServiceTests {
 
         verify(showroomRepository, never()).findById(any());
         verify(showtimeRepository, never()).saveAndFlush(any(Showtime.class));
+    }
+
+    @Test
+    void returnsRealShowtimesForMovie() {
+        Movie movie = movie(12L, "The Test Feature");
+        Showroom showroom = showroom(3L, "Showroom 3");
+        Showtime showtime = new Showtime();
+        showtime.setId(42L);
+        showtime.setMovie(movie);
+        showtime.setShowroom(showroom);
+        showtime.setShowDate(request.date());
+        showtime.setShowTime(request.time());
+
+        when(movieRepository.existsById(12L)).thenReturn(true);
+        when(showtimeRepository.findAllByMovieId(12L)).thenReturn(List.of(showtime));
+
+        List<ShowtimeResponse> result = showtimeService.getShowtimesForMovie(12L);
+
+        assertEquals(1, result.size());
+        assertEquals(42L, result.get(0).id());
+        assertEquals("The Test Feature", result.get(0).movieTitle());
+        assertEquals("Showroom 3", result.get(0).showroom().name());
+        assertEquals(request.date(), result.get(0).date());
+        assertEquals(request.time(), result.get(0).time());
+    }
+
+    @Test
+    void rejectsShowtimeLookupForUnknownMovie() {
+        when(movieRepository.existsById(12L)).thenReturn(false);
+
+        assertThrows(MovieNotFoundException.class,
+                () -> showtimeService.getShowtimesForMovie(12L));
+
+        verify(showtimeRepository, never()).findAllByMovieId(12L);
     }
 
     private Movie movie(Long id, String title) {

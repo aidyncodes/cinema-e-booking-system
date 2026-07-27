@@ -14,24 +14,31 @@ const resetSeatsBtn = document.getElementById("resetSeatsBtn");
 const proceedBtn = document.getElementById("proceedBtn");
 const bookingMessage = document.getElementById("bookingMessage");
 
+// Display prices, kept in sync with the server-side prices in BookingService.
 const PRICES = { adult: 12.00, senior: 8.00, child: 6.00 };
 const BOOKING_KEY = "ces_pending_booking";
 const params = new URLSearchParams(window.location.search);
-const rows = boundedNumber(params.get("rows"), 7, 1, 26);
-const cols = boundedNumber(params.get("seatsPerRow"), 10, 1, 20);
-const totalSeatCount = rows * cols;
+const showtimeId = params.get("showtimeId");
+
+// Layout comes from the seat map endpoint; params are only a fallback for display.
+let rows = boundedNumber(params.get("rows"), 7, 1, 26);
+let cols = boundedNumber(params.get("seatsPerRow"), 10, 1, 20);
 
 let ticketCounts = { adult: 0, senior: 0, child: 0 };
-let selectedSeats = new Set();
-let occupiedSeats = new Set();
+let selectedSeats = new Set();   // seat indices the user has chosen
+let occupiedSeats = new Set();   // seat indices taken by someone else
 
 function boundedNumber(value, fallback, min, max) {
     const number = Number(value);
     return Number.isInteger(number) && number >= min && number <= max ? number : fallback;
 }
 
+function totalSeatCount() {
+    return rows * cols;
+}
+
 function bookingIdentity() {
-    return params.get("showtimeId") || [
+    return showtimeId || [
         params.get("movieId"),
         params.get("showDate"),
         params.get("showTime"),
@@ -47,31 +54,6 @@ function showBookingMessage(message, type = "error") {
 function hideBookingMessage() {
     bookingMessage.className = "booking-message hidden";
     bookingMessage.textContent = "";
-}
-
-function seededNumber(seed) {
-    let value = 2166136261;
-    for (let index = 0; index < seed.length; index += 1) {
-        value ^= seed.charCodeAt(index);
-        value = Math.imul(value, 16777619);
-    }
-    return value >>> 0;
-}
-
-function generateOccupiedSeats() {
-    const seats = new Set();
-    const target = Math.min(totalSeatCount, Math.max(4, Math.floor(totalSeatCount * 0.12)));
-    let value = seededNumber(bookingIdentity() || "ces-showtime");
-    let attempts = 0;
-    while (seats.size < target && attempts < totalSeatCount * 10) {
-        value = (Math.imul(value, 1664525) + 1013904223) >>> 0;
-        seats.add(value % totalSeatCount);
-        attempts += 1;
-    }
-    for (let index = 0; seats.size < target && index < totalSeatCount; index += 1) {
-        seats.add(index);
-    }
-    return seats;
 }
 
 function seatLabel(index) {
@@ -107,7 +89,7 @@ function renderSeats() {
     seatGrid.replaceChildren();
     seatGrid.style.gridTemplateColumns = `repeat(${cols}, minmax(28px, 1fr))`;
 
-    for (let index = 0; index < totalSeatCount; index += 1) {
+    for (let index = 0; index < totalSeatCount(); index += 1) {
         const button = document.createElement("button");
         const label = seatLabel(index);
         button.type = "button";
@@ -196,7 +178,31 @@ function loadMovieData() {
     document.title = `Book ${title} - CES Cinema`;
 }
 
-function restoreMatchingBooking() {
+// Pulls the real seat map from the backend: showroom layout plus which seats are
+// already held/booked. Seats this session is holding come back flagged "mine".
+async function loadSeatMap() {
+    const map = await apiRequest(`/api/showtimes/${encodeURIComponent(showtimeId)}/seats`);
+
+    rows = map.showroom.rowCount;
+    cols = map.showroom.seatsPerRow;
+
+    occupiedSeats = new Set();
+    const mine = [];
+    (map.unavailableSeats || []).forEach(seat => {
+        const index = indexForSeatLabel(seat.seatLabel);
+        if (index < 0) return;
+        if (seat.mine) {
+            mine.push(index);
+        } else {
+            occupiedSeats.add(index);
+        }
+    });
+    selectedSeats = new Set(mine);
+}
+
+// Restores the ticket quantities the user picked earlier (e.g. after a page
+// reload) from the pending-booking cache, as long as it is the same showtime.
+function restoreTicketCounts() {
     try {
         const stored = JSON.parse(sessionStorage.getItem(BOOKING_KEY));
         if (!stored || stored.identity !== bookingIdentity()) return;
@@ -205,11 +211,6 @@ function restoreMatchingBooking() {
             senior: Number(stored.tickets && stored.tickets.senior) || 0,
             child: Number(stored.tickets && stored.tickets.child) || 0
         };
-        selectedSeats = new Set(
-            (stored.seats || [])
-                .map(indexForSeatLabel)
-                .filter(index => index >= 0 && !occupiedSeats.has(index))
-        );
     } catch (error) {
         sessionStorage.removeItem(BOOKING_KEY);
     }
@@ -220,7 +221,7 @@ function pendingBooking() {
     return {
         identity: bookingIdentity(),
         movieId: params.get("movieId"),
-        showtimeId: params.get("showtimeId"),
+        showtimeId,
         title: params.get("title") || "Movie",
         showtime: params.get("showtime") || "",
         showDate: params.get("showDate") || "",
@@ -237,7 +238,7 @@ function pendingBooking() {
     };
 }
 
-function proceedToCheckout() {
+async function proceedToCheckout() {
     hideBookingMessage();
     const ticketTotal = totalTicketCount();
     if (ticketTotal === 0) {
@@ -249,12 +250,52 @@ function proceedToCheckout() {
         return;
     }
 
+    proceedBtn.disabled = true;
+    const seatLabels = [...selectedSeats].sort((left, right) => left - right).map(seatLabel);
+
+    try {
+        // Reserve the seats server-side before moving on. This holds them against
+        // the current session so they survive the login step at checkout.
+        await apiRequest(`/api/showtimes/${encodeURIComponent(showtimeId)}/hold`, {
+            method: "POST",
+            body: JSON.stringify({
+                seats: seatLabels,
+                adultCount: ticketCounts.adult,
+                seniorCount: ticketCounts.senior,
+                childCount: ticketCounts.child
+            })
+        });
+    } catch (error) {
+        proceedBtn.disabled = false;
+        // Someone grabbed a seat first - refresh the map so the user can re-pick.
+        if (error.status === 409) {
+            showBookingMessage(error.message || "Some seats were just taken. Please choose again.");
+            await refreshSeatMap();
+            return;
+        }
+        showBookingMessage(error.message || "Could not hold your seats. Please try again.");
+        return;
+    }
+
     sessionStorage.setItem(BOOKING_KEY, JSON.stringify(pendingBooking()));
+
+    // Checkout requires login; the held seats stay reserved under this session.
     if (!isLoggedIn()) {
         window.location.href = `/login.html?redirect=${encodeURIComponent("/checkout.html")}`;
         return;
     }
     window.location.href = "/checkout.html";
+}
+
+async function refreshSeatMap() {
+    try {
+        await loadSeatMap();
+    } catch (error) {
+        showBookingMessage("Could not refresh the seat map. Please reload the page.");
+        return;
+    }
+    renderSeats();
+    updateTicketDisplay();
 }
 
 document.querySelectorAll(".qty-btn").forEach(button => {
@@ -270,8 +311,30 @@ resetSeatsBtn.addEventListener("click", () => {
 });
 proceedBtn.addEventListener("click", proceedToCheckout);
 
-occupiedSeats = generateOccupiedSeats();
-restoreMatchingBooking();
-loadMovieData();
-renderSeats();
-updateTicketDisplay();
+async function init() {
+    loadMovieData();
+
+    if (!showtimeId) {
+        showBookingMessage("This showtime is unavailable. Please pick a showtime from the movie page.");
+        proceedBtn.disabled = true;
+        return;
+    }
+
+    try {
+        await loadSeatMap();
+    } catch (error) {
+        if (error.status === 404) {
+            showBookingMessage("This showtime could not be found.");
+        } else {
+            showBookingMessage("Could not load the seat map. Please reload the page.");
+        }
+        proceedBtn.disabled = true;
+        return;
+    }
+
+    restoreTicketCounts();
+    renderSeats();
+    updateTicketDisplay();
+}
+
+init();

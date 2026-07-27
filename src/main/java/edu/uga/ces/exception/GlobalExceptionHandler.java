@@ -35,6 +35,30 @@ public class GlobalExceptionHandler {
                 .body(Map.of("error", "SHOWTIME_CONFLICT", "message", ex.getMessage()));
     }
 
+    @ExceptionHandler(ShowtimeNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleShowtimeNotFound(ShowtimeNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", "NOT_FOUND", "message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(SeatUnavailableException.class)
+    public ResponseEntity<Map<String, String>> handleSeatUnavailable(SeatUnavailableException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("error", "SEAT_UNAVAILABLE", "message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(SeatSelectionException.class)
+    public ResponseEntity<Map<String, String>> handleSeatSelection(SeatSelectionException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("error", "INVALID_SEAT_SELECTION", "message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(NoPendingBookingException.class)
+    public ResponseEntity<Map<String, String>> handleNoPendingBooking(NoPendingBookingException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", "NO_PENDING_BOOKING", "message", ex.getMessage()));
+    }
+
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<Map<String, String>> handleEmailExists(EmailAlreadyExistsException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)

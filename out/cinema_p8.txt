@@ -1,0 +1,18 @@
+Design Patterns: Proxy
+Proxy Pattern
+Context/problem & solution: 
+Every repository requires the same setup: Turn a method call into a SQL query, run it through Hibernate, map the rows back to entity objects. 
+We do this for every entity type. Writing that by hand for ShowtimeRepository, SeatReservationRepository, and every other repository would 
+mean rewriting the same CRUD and query-execution logic over and over. This is repetitive.
+Instead, repositories are declared as bare interfaces, ShowtimeRepository extends JpaRepository<Showtime, Long>, with no implementation 
+written by hand, not even for the derived-query methods like findAllByMovieId(). At startup, Spring Data JPA generates a proxy class 
+implementing the interface; the proxy intercepts every call, parses it into JPQL (from the method name or an @Query annotation), and 
+delegates to SimpleJpaRepository, which runs it through EntityManager/Hibernate and maps results back to entities. ShowtimeService only 
+ever sees the ShowtimeRepositoryinterface and it has no idea a generated proxy sits underneath it.
+SOLID principles achieved:
+● Single Responsibility: each repository interface has one job: declare data-access operations for one entity. The proxy owns query 
+execution; EntityManager/Hibernate own talking to MySQL.
+● Open/Closed: new query methods (or whole new repository interfaces) can be added without touching the proxy mechanism or any 
+existing service code.
+● Dependency Inversion: ShowtimeService depends on the abstract ShowtimeRepository interface, never on SimpleJpaRepositoryor any 
+concrete class, the real implementation is swapped in underneath it without the service knowing.

@@ -1,0 +1,14 @@
+Design Goals Achieved
+Maintainability
+● Layered architecture (Controller → Service → Repository → Model): each layer has one responsibility
+● Centralized error handling: GlobalExceptionHandler defines the JSON error shape for the whole app
+Reusability
+● Shared frontend core: session.js, nav-auth.js, and a single styles.css are reused by every page
+● Seat map generation: seats are derived from a showroom’s rowCount * seatsPerRow, so the same code can handle different 
+showroom sizes
+Security
+● Checkout restricted to authenticated users: Guests can browse and pick seats, but only users can checkout
+● Emailed account confirmation: Accounts are confirmed via one-time tokens sent through email
+Usability
+● Helpful and Specific feedback: Messages like “Choose at least one ticket before selecting seats” instead of generic error messages
+● Role-based navigation: Admins are directed to admin portal and customers to homepage after logging in

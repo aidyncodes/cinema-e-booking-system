@@ -1,0 +1,15 @@
+Design Patterns: Adapter
+Adapter Pattern
+Context/problem & solution: 
+Sending account emails only has Spring's JavaMailSender available, which works in terms of generic SimpleMailMessage objects (not 
+something AuthController or PasswordService should need to know how to construct, or which from-address and URL to wire in every time).
+EmailService and AccountEmailService sit between the callers and JavaMailSender, adapting its generic send(SimpleMailMessage) API into 
+small, purpose-built methods: sendConfirmationEmail(toEmail, firstName, token), sendPasswordResetEmail(toEmail, firstName, token), 
+sendPasswordChangedEmail(toEmail, firstName). Callers depend only on these domain-specific methods; if the mail transport ever changed 
+(for ex, swapping JavaMailSender for a third-party email API), only the two adapter classes would need to change, not every caller.
+SOLID principles achieved:
+Single Responsibility: each adapter owns the wording and structure of its own specific email; JavaMailSender only knows generic mail 
+transport.
+Dependency Inversion: callers depend on a small abstraction close to their own needs (EmailService/AccountEmailService), not directly on 
+JavaMailSender/SimpleMailMessage.
+Open/Closed: new email types can be added as new adapter methods without modifying JavaMailSender or any calling controller/service.

@@ -1,0 +1,18 @@
+SET FOREIGN_KEY_CHECKS = 0;
+
+DROP TABLE IF EXISTS payment_transactions;
+DROP TABLE IF EXISTS tickets;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS seat_reservations;
+DROP TABLE IF EXISTS showtimes;
+DROP TABLE IF EXISTS showrooms;
+DROP TABLE IF EXISTS promotions;
+DROP TABLE IF EXISTS password_reset_tokens;
+DROP TABLE IF EXISTS email_confirmation_tokens;
+DROP TABLE IF EXISTS favorites;
+DROP TABLE IF EXISTS payment_cards;
+DROP TABLE IF EXISTS addresses;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS movies;
+
+SET FOREIGN_KEY_CHECKS = 1;

@@ -1,0 +1,13 @@
+Design Patterns: Facade
+Facade Pattern
+Context/problem & solution:
+The BookingController should not directly handle seat reservations, showtime information, ticket prices, and database access. This would 
+make the controller too complicated.
+The BookingService acts as a Facade. The controller only communicates with the BookingService, and the service handles the different booking 
+operations by using the repository classes.
+SOLID principles achieved: 
+● Single Responsibility Principle (SRP): Each class has one main job. The controller handles web requests, the service handles booking 
+logic, and the repositories handle database access.
+● Open/Closed Principle (OCP): The booking logic can be extended or changed without making large changes to the controller.
+● Dependency Inversion Principle (DIP): The BookingService depends on repository interfaces instead of creating database objects 
+directly.

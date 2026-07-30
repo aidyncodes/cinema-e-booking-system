@@ -37,6 +37,9 @@ function hideMovieBanner() {
 
 function validOptionalUrl(value) {
     if (!value) return true;
+    if (/^\/images\/posters\/[a-z0-9._-]+\.(jpg|jpeg|png|webp)$/i.test(value)) {
+        return true;
+    }
     try {
         const url = new URL(value);
         return url.protocol === "http:" || url.protocol === "https:";
@@ -62,7 +65,10 @@ function validateMovieForm() {
         valid = false;
     }
     if (!validOptionalUrl(movieFields.posterUrl.value.trim())) {
-        setMovieFieldError("posterUrl", "Enter a valid HTTP or HTTPS URL.");
+        setMovieFieldError(
+            "posterUrl",
+            "Enter an HTTP/HTTPS URL or a local path such as /images/posters/movie.jpg."
+        );
         valid = false;
     }
     if (!validOptionalUrl(movieFields.trailerUrl.value.trim())) {

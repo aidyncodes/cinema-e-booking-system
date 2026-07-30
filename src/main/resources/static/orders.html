@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - CES Cinema</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/orders.css">
+    <script src="/session.js" defer></script>
+    <script src="/nav-auth.js" defer></script>
+    <script src="/orders.js" defer></script>
+</head>
+<body>
+<header class="topbar">
+    <nav class="nav-shell" aria-label="Primary navigation">
+        <a class="brand" href="/index.html" aria-label="CES Cinema home">
+            <span class="brand-mark">CES</span>
+            <span>CES Cinema</span>
+        </a>
+        <div class="nav-links">
+            <a class="nav-link" href="/index.html">Movies</a>
+            <a class="nav-link active" href="/orders.html">Orders</a>
+            <span id="navAuthSlot" class="nav-auth-slot"></span>
+        </div>
+    </nav>
+</header>
+
+<main class="page orders-page">
+    <section class="page-header">
+        <div>
+            <p class="eyebrow">Your bookings</p>
+            <h1>Order History</h1>
+            <p class="page-subtitle">Review previous bookings, seats, payment totals, and confirmation numbers.</p>
+        </div>
+    </section>
+
+    <div id="ordersError" class="orders-alert hidden" role="alert"></div>
+    <div id="ordersLoading" class="orders-loading">Loading your orders...</div>
+    <section id="ordersEmpty" class="orders-empty hidden">
+        <h2>No orders yet</h2>
+        <p>Your completed bookings will appear here.</p>
+        <a class="button" href="/index.html">Browse Movies</a>
+    </section>
+    <section id="ordersList" class="orders-list" aria-live="polite"></section>
+</main>
+</body>
+</html>

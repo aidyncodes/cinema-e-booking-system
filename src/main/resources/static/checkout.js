@@ -1,4 +1,3 @@
-const BOOKING_KEY = "ces_pending_booking";
 const checkoutContent = document.getElementById("checkoutContent");
 const checkoutError = document.getElementById("checkoutError");
 const backToSeats = document.getElementById("backToSeats");
@@ -10,7 +9,8 @@ const differentEmail = document.getElementById("differentEmail");
 const emailError = document.getElementById("emailError");
 const paymentBtn = document.getElementById("paymentBtn");
 
-let booking = null;
+let summary = null;
+let profile = null;
 let profileEmail = "";
 
 function money(value) {
@@ -18,7 +18,23 @@ function money(value) {
 }
 
 function ticketLabel(type) {
-    return type.charAt(0).toUpperCase() + type.slice(1);
+    const normalized = String(type || "").toLowerCase();
+    return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+}
+
+function formatDate(value) {
+    if (!value) return "Date unavailable";
+    return new Intl.DateTimeFormat("en-US", {
+        year: "numeric", month: "long", day: "numeric", timeZone: "UTC"
+    }).format(new Date(`${value}T00:00:00Z`));
+}
+
+function formatTime(value) {
+    if (!value) return "Time unavailable";
+    const [hour, minute] = value.split(":").map(Number);
+    return new Intl.DateTimeFormat("en-US", {
+        hour: "numeric", minute: "2-digit"
+    }).format(new Date(2000, 0, 1, hour, minute));
 }
 
 function showCheckoutError(message) {
@@ -27,30 +43,34 @@ function showCheckoutError(message) {
     checkoutError.textContent = message;
 }
 
-function loadPendingBooking() {
-    try {
-        return JSON.parse(sessionStorage.getItem(BOOKING_KEY));
-    } catch (error) {
-        return null;
-    }
-}
-
 function renderBooking() {
-    document.getElementById("summaryMovie").textContent = booking.title;
-    document.getElementById("summaryShowtime").textContent = booking.showtime;
-    document.getElementById("summaryShowroom").textContent = booking.auditorium;
-    document.getElementById("summarySeats").textContent = booking.seats.join(", ");
-    document.getElementById("summarySubtotal").textContent = money(booking.subtotal);
-    backToSeats.href = booking.bookingUrl || "/index.html";
+    const showtimeText = `${formatDate(summary.showDate)} at ${formatTime(summary.showTime)}`;
+    document.getElementById("summaryMovie").textContent = summary.movieTitle;
+    document.getElementById("summaryShowtime").textContent = showtimeText;
+    document.getElementById("summaryShowroom").textContent = summary.showroomName;
+    document.getElementById("summarySeats").textContent = summary.seats.join(", ");
+    document.getElementById("summarySubtotal").textContent = money(summary.totalBeforeTax);
+
+    const bookingParams = new URLSearchParams({
+        showtimeId: summary.showtimeId,
+        title: summary.movieTitle,
+        showtime: showtimeText,
+        showDate: summary.showDate,
+        showTime: summary.showTime,
+        showroom: summary.showroomName
+    });
+    backToSeats.href = `/booking.html?${bookingParams}`;
 
     const body = document.getElementById("ticketSummaryBody");
     body.replaceChildren();
-    ["adult", "senior", "child"].forEach(type => {
-        const quantity = Number(booking.tickets[type] || 0);
-        if (!quantity) return;
-        const price = Number(booking.prices[type] || 0);
+    summary.tickets.forEach(ticket => {
         const row = document.createElement("tr");
-        [ticketLabel(type), quantity, money(price), money(quantity * price)].forEach(value => {
+        [
+            ticketLabel(ticket.type),
+            ticket.count,
+            money(ticket.pricePerTicket),
+            money(ticket.lineTotal)
+        ].forEach(value => {
             const cell = document.createElement("td");
             cell.textContent = value;
             row.appendChild(cell);
@@ -64,38 +84,14 @@ function setEmailMode() {
     differentEmail.disabled = !useDifferentEmail.checked;
     emailError.textContent = "";
     differentEmail.classList.remove("invalid");
-    if (useDifferentEmail.checked) {
-        differentEmail.focus();
-    }
+    if (useDifferentEmail.checked) differentEmail.focus();
 }
 
 function validEmail(value) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-async function loadProfileEmail() {
-    try {
-        const profile = await apiRequest("/api/profile");
-        profileEmail = profile.email || "";
-    } catch (error) {
-        if (error.status === 401 || error.status === 403) {
-            clearCurrentUser();
-            window.location.href = `/login.html?redirect=${encodeURIComponent("/checkout.html")}`;
-            return;
-        }
-        const currentUser = getCurrentUser();
-        profileEmail = currentUser && currentUser.email ? currentUser.email : "";
-    }
-    accountEmail.textContent = profileEmail || "No account email available";
-    useAccountEmail.disabled = !profileEmail;
-    if (!profileEmail) {
-        useDifferentEmail.checked = true;
-        setEmailMode();
-    }
-    paymentBtn.disabled = false;
-}
-
-emailForm.addEventListener("submit", event => {
+async function handleEmailSubmit(event) {
     event.preventDefault();
     const chosenEmail = useDifferentEmail.checked
         ? differentEmail.value.trim()
@@ -112,11 +108,58 @@ emailForm.addEventListener("submit", event => {
     }
 
     paymentBtn.disabled = true;
-    booking.email = chosenEmail;
-    sessionStorage.setItem(BOOKING_KEY, JSON.stringify(booking));
-    window.location.href = "/payment.html";
-});
+    paymentBtn.textContent = "Saving...";
+    try {
+        await apiRequest("/api/checkout/confirmation-email", {
+            method: "POST",
+            body: JSON.stringify({ confirmationEmail: chosenEmail })
+        });
+        window.location.href = "/payment.html";
+    } catch (error) {
+        if (error.status === 401 || error.status === 403) {
+            clearCurrentUser();
+            window.location.href = `/login.html?redirect=${encodeURIComponent("/checkout.html")}`;
+            return;
+        }
+        emailError.textContent = error.message || "Could not save the confirmation email.";
+    } finally {
+        paymentBtn.disabled = false;
+        paymentBtn.textContent = "Continue to Payment";
+    }
+}
 
+async function initCheckout() {
+    try {
+        [summary, profile] = await Promise.all([
+            apiRequest("/api/checkout/summary"),
+            apiRequest("/api/profile")
+        ]);
+    } catch (error) {
+        if (error.status === 401 || error.status === 403) {
+            clearCurrentUser();
+            window.location.href = `/login.html?redirect=${encodeURIComponent("/checkout.html")}`;
+            return;
+        }
+        if (error.status === 404) {
+            showCheckoutError("No pending booking was found. Return to Movies and select a showtime.");
+            return;
+        }
+        showCheckoutError(error.message || "Could not load checkout. Please try again.");
+        return;
+    }
+
+    profileEmail = profile.email || "";
+    accountEmail.textContent = profileEmail || "No account email available";
+    useAccountEmail.disabled = !profileEmail;
+    if (!profileEmail) {
+        useDifferentEmail.checked = true;
+        setEmailMode();
+    }
+    renderBooking();
+    paymentBtn.disabled = false;
+}
+
+emailForm.addEventListener("submit", handleEmailSubmit);
 useAccountEmail.addEventListener("change", setEmailMode);
 useDifferentEmail.addEventListener("change", setEmailMode);
 differentEmail.addEventListener("input", () => {
@@ -124,12 +167,4 @@ differentEmail.addEventListener("input", () => {
     differentEmail.classList.remove("invalid");
 });
 
-booking = loadPendingBooking();
-if (!booking) {
-    showCheckoutError("No pending booking was found. Return to Movies and select a showtime.");
-} else if (!isLoggedIn()) {
-    window.location.href = `/login.html?redirect=${encodeURIComponent("/checkout.html")}`;
-} else {
-    renderBooking();
-    loadProfileEmail();
-}
+initCheckout();

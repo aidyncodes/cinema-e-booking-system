@@ -10,4 +10,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     // All tickets for a batch of orders, so history can attach them in one query.
     List<Ticket> findByOrderIdInOrderBySeatLabelAsc(Collection<Long> orderIds);
+
+    List<Ticket> findByOrderIdOrderBySeatLabelAsc(Long orderId);
+
+    List<Ticket> findByShowtimeId(Long showtimeId);
 }

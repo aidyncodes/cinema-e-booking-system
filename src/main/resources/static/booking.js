@@ -16,7 +16,6 @@ const bookingMessage = document.getElementById("bookingMessage");
 
 // Display prices, kept in sync with the server-side prices in BookingService.
 const PRICES = { adult: 12.00, senior: 8.00, child: 6.00 };
-const BOOKING_KEY = "ces_pending_booking";
 const params = new URLSearchParams(window.location.search);
 const showtimeId = params.get("showtimeId");
 
@@ -35,15 +34,6 @@ function boundedNumber(value, fallback, min, max) {
 
 function totalSeatCount() {
     return rows * cols;
-}
-
-function bookingIdentity() {
-    return showtimeId || [
-        params.get("movieId"),
-        params.get("showDate"),
-        params.get("showTime"),
-        params.get("showroomId")
-    ].join(":");
 }
 
 function showBookingMessage(message, type = "error") {
@@ -200,42 +190,24 @@ async function loadSeatMap() {
     selectedSeats = new Set(mine);
 }
 
-// Restores the ticket quantities the user picked earlier (e.g. after a page
-// reload) from the pending-booking cache, as long as it is the same showtime.
-function restoreTicketCounts() {
+// If this session already owns a backend hold (for example after reloading or
+// returning from checkout), restore the ticket quantities from that hold.
+async function restoreTicketCounts() {
+    if (!selectedSeats.size) return;
     try {
-        const stored = JSON.parse(sessionStorage.getItem(BOOKING_KEY));
-        if (!stored || stored.identity !== bookingIdentity()) return;
-        ticketCounts = {
-            adult: Number(stored.tickets && stored.tickets.adult) || 0,
-            senior: Number(stored.tickets && stored.tickets.senior) || 0,
-            child: Number(stored.tickets && stored.tickets.child) || 0
-        };
+        const summary = await apiRequest("/api/checkout/summary");
+        if (String(summary.showtimeId) !== String(showtimeId)) return;
+        const restored = { adult: 0, senior: 0, child: 0 };
+        (summary.tickets || []).forEach(ticket => {
+            const type = String(ticket.type || "").toLowerCase();
+            if (Object.prototype.hasOwnProperty.call(restored, type)) {
+                restored[type] = Number(ticket.count) || 0;
+            }
+        });
+        ticketCounts = restored;
     } catch (error) {
-        sessionStorage.removeItem(BOOKING_KEY);
+        // The seat map is still usable if there is no matching pending summary.
     }
-}
-
-function pendingBooking() {
-    const seats = [...selectedSeats].sort((left, right) => left - right).map(seatLabel);
-    return {
-        identity: bookingIdentity(),
-        movieId: params.get("movieId"),
-        showtimeId,
-        title: params.get("title") || "Movie",
-        showtime: params.get("showtime") || "",
-        showDate: params.get("showDate") || "",
-        showTime: params.get("showTime") || "",
-        showroomId: params.get("showroomId") || "",
-        auditorium: params.get("showroom") || "Showroom",
-        rows,
-        seatsPerRow: cols,
-        tickets: { ...ticketCounts },
-        prices: { ...PRICES },
-        seats,
-        subtotal: calculateSubtotal(),
-        bookingUrl: `${window.location.pathname}${window.location.search}`
-    };
 }
 
 async function proceedToCheckout() {
@@ -276,8 +248,6 @@ async function proceedToCheckout() {
         showBookingMessage(error.message || "Could not hold your seats. Please try again.");
         return;
     }
-
-    sessionStorage.setItem(BOOKING_KEY, JSON.stringify(pendingBooking()));
 
     // Checkout requires login; the held seats stay reserved under this session.
     if (!isLoggedIn()) {
@@ -332,7 +302,7 @@ async function init() {
         return;
     }
 
-    restoreTicketCounts();
+    await restoreTicketCounts();
     renderSeats();
     updateTicketDisplay();
 }

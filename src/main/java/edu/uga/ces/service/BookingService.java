@@ -13,8 +13,10 @@ import edu.uga.ces.exception.ShowtimeNotFoundException;
 import edu.uga.ces.model.SeatReservation;
 import edu.uga.ces.model.Showroom;
 import edu.uga.ces.model.Showtime;
+import edu.uga.ces.model.Ticket;
 import edu.uga.ces.repository.SeatReservationRepository;
 import edu.uga.ces.repository.ShowtimeRepository;
+import edu.uga.ces.repository.TicketRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +36,7 @@ import java.util.regex.Pattern;
 @Service
 public class BookingService {
 
+    private static final double TAX_RATE = 0.08;
     // Age-category ticket prices. A reference table can replace this later.
     private static final Map<String, Double> PRICES = Map.of(
             "ADULT", 12.00,
@@ -48,11 +51,14 @@ public class BookingService {
 
     private final ShowtimeRepository showtimeRepository;
     private final SeatReservationRepository seatReservationRepository;
+    private final TicketRepository ticketRepository;
 
     public BookingService(ShowtimeRepository showtimeRepository,
-                          SeatReservationRepository seatReservationRepository) {
+                          SeatReservationRepository seatReservationRepository,
+                          TicketRepository ticketRepository) {
         this.showtimeRepository = showtimeRepository;
         this.seatReservationRepository = seatReservationRepository;
+        this.ticketRepository = ticketRepository;
     }
 
     @Transactional(readOnly = true)
@@ -88,6 +94,14 @@ public class BookingService {
                 .toList();
         if (!taken.isEmpty()) {
             throw new SeatUnavailableException(taken);
+        }
+        List<String> sold = ticketRepository.findByShowtimeId(showtimeId).stream()
+                .map(Ticket::getSeatLabel)
+                .filter(seats::contains)
+                .sorted(BookingService::compareSeatLabels)
+                .toList();
+        if (!sold.isEmpty()) {
+            throw new SeatUnavailableException(sold);
         }
 
         // A session holds one showtime at a time, so drop any earlier holds first.
@@ -156,6 +170,7 @@ public class BookingService {
             lines.add(new TicketLine(type, count, price, lineTotal));
         }
 
+        double taxAmount = Math.round(total * TAX_RATE * 100.0) / 100.0;
         return new OrderSummaryResponse(
                 showtime.getId(),
                 showtime.getMovie().getTitle(),
@@ -165,7 +180,9 @@ public class BookingService {
                 seats,
                 lines,
                 held.size(),
-                total
+                total,
+                taxAmount,
+                total + taxAmount
         );
     }
 
@@ -175,14 +192,20 @@ public class BookingService {
     }
 
     private SeatMapResponse buildSeatMap(Showtime showtime, String sessionId) {
-        List<SeatStatus> unavailable = seatReservationRepository
+        List<SeatStatus> unavailable = new ArrayList<>(seatReservationRepository
                 .findByShowtimeId(showtime.getId()).stream()
                 .map(reservation -> new SeatStatus(
                         reservation.getSeatLabel(),
                         reservation.getStatus(),
                         SeatReservation.STATUS_HELD.equals(reservation.getStatus())
                                 && sessionId.equals(reservation.getSessionId())))
-                .toList();
+                .toList());
+        ticketRepository.findByShowtimeId(showtime.getId()).stream()
+                .filter(ticket -> unavailable.stream()
+                        .noneMatch(seat -> seat.seatLabel().equals(ticket.getSeatLabel())))
+                .map(ticket -> new SeatStatus(
+                        ticket.getSeatLabel(), SeatReservation.STATUS_BOOKED, false))
+                .forEach(unavailable::add);
 
         Showroom showroom = showtime.getShowroom();
         ShowroomResponse showroomResponse = new ShowroomResponse(
@@ -250,7 +273,7 @@ public class BookingService {
     }
 
     // Orders seat labels by row letter, then seat number (A2 before A10).
-    private static int compareSeatLabels(String left, String right) {
+    static int compareSeatLabels(String left, String right) {
         Matcher leftMatch = SEAT_LABEL.matcher(left);
         Matcher rightMatch = SEAT_LABEL.matcher(right);
         if (!leftMatch.matches() || !rightMatch.matches()) {
@@ -263,5 +286,23 @@ public class BookingService {
         return Integer.compare(
                 Integer.parseInt(leftMatch.group(2)),
                 Integer.parseInt(rightMatch.group(2)));
+    }
+
+    /**
+     * Login rotates the HTTP session id for security. Move any guest hold to the
+     * rotated id so checkout can still find the selected seats.
+     */
+    @Transactional
+    public void transferHeldSeats(String oldSessionId, String newSessionId, Long userId) {
+        if (oldSessionId.equals(newSessionId)) {
+            return;
+        }
+        List<SeatReservation> held = seatReservationRepository
+                .findBySessionIdAndStatus(oldSessionId, SeatReservation.STATUS_HELD);
+        held.forEach(reservation -> {
+            reservation.setSessionId(newSessionId);
+            reservation.setUserId(userId);
+        });
+        seatReservationRepository.saveAll(held);
     }
 }

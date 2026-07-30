@@ -32,9 +32,9 @@
 
     <section class="page-header">
         <div>
-            <p class="eyebrow">Sprint 3 payment mockup</p>
+            <p class="eyebrow">Secure checkout</p>
             <h1>Payment</h1>
-            <p class="page-subtitle">Review the amount and payment details. Payment processing and final order confirmation are not part of this sprint.</p>
+            <p class="page-subtitle">Choose a saved payment card and place your order.</p>
         </div>
     </section>
 
@@ -43,31 +43,16 @@
     <div id="paymentContent" class="payment-layout hidden">
         <section class="checkout-card" aria-labelledby="paymentDetailsHeading">
             <h2 id="paymentDetailsHeading">Payment details</h2>
-            <div class="mockup-notice">
-                Demo only — no card will be charged and no reservation will be finalized.
-            </div>
-
-            <div class="payment-form" aria-disabled="true">
-                <label>
-                    Name on card
-                    <input type="text" value="Demo Customer" disabled>
-                </label>
-                <label>
-                    Card number
-                    <input type="text" value="•••• •••• •••• 4242" disabled>
-                </label>
-                <div class="payment-fields-row">
-                    <label>
-                        Expiration
-                        <input type="text" value="12 / 30" disabled>
-                    </label>
-                    <label>
-                        Security code
-                        <input type="text" value="•••" disabled>
-                    </label>
+            <p class="checkout-help">For security, checkout sends only the saved card ID. Full card numbers are never placed on an order.</p>
+            <form id="paymentForm">
+                <div id="savedCards" class="saved-card-list"></div>
+                <div id="noCards" class="checkout-alert hidden">
+                    No saved payment card is available.
+                    <a href="/profile.html">Add a card in your profile</a>, then return to payment.
                 </div>
-                <button class="button checkout-submit" type="button" disabled>Payment Processing Coming in Final Demo</button>
-            </div>
+                <div id="paymentSubmitError" class="checkout-field-error" role="alert"></div>
+                <button id="placeOrderBtn" class="button checkout-submit" type="submit" disabled>Place Order</button>
+            </form>
         </section>
 
         <aside class="checkout-card payment-summary" aria-labelledby="paymentSummaryHeading">
@@ -79,9 +64,11 @@
                 <div><dt>Email</dt><dd id="paymentEmail"></dd></div>
             </dl>
             <div class="subtotal-row">
-                <span>Total before tax</span>
+                <span>Subtotal</span>
                 <strong id="paymentSubtotal"></strong>
             </div>
+            <div class="amount-row"><span>Tax</span><strong id="paymentTax"></strong></div>
+            <div class="amount-row payment-total"><span>Total</span><strong id="paymentTotal"></strong></div>
         </aside>
     </div>
 </main>

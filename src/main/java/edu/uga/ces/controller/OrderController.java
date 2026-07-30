@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.Map;
 
@@ -35,6 +36,17 @@ public class OrderController {
             return notAuthenticated();
         }
         return ResponseEntity.ok(orderHistoryService.getOrdersForUser(userId));
+    }
+
+    @GetMapping("/{confirmationNumber}")
+    public ResponseEntity<?> get(@PathVariable String confirmationNumber,
+                                 HttpServletRequest request) {
+        Long userId = currentUserId(request);
+        if (userId == null) {
+            return notAuthenticated();
+        }
+        return ResponseEntity.ok(
+                orderHistoryService.getOrderForUser(userId, confirmationNumber));
     }
 
     // Reads the logged-in user's id from the session; null when nobody is logged in.

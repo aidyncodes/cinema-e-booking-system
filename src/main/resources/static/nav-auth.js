@@ -11,6 +11,14 @@ function renderNavAuth() {
     if (user) {
         const links = [];
 
+        if (!document.querySelector('.nav-links a[href="/orders.html"]')) {
+            const ordersLink = document.createElement("a");
+            ordersLink.className = "nav-link";
+            ordersLink.href = "/orders.html";
+            ordersLink.textContent = "Orders";
+            links.push(ordersLink);
+        }
+
         if (user.role === "ADMIN") {
             const adminLink = document.createElement("a");
             adminLink.className = "nav-link";

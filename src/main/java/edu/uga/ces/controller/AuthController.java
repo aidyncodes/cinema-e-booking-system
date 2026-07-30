@@ -6,6 +6,7 @@ import edu.uga.ces.dto.RegisterRequest;
 import edu.uga.ces.exception.InvalidTokenException;
 import edu.uga.ces.model.User;
 import edu.uga.ces.service.UserService;
+import edu.uga.ces.service.BookingService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -21,9 +22,11 @@ import java.util.Map;
 public class AuthController {
 
     private final UserService userService;
+    private final BookingService bookingService;
 
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, BookingService bookingService) {
         this.userService = userService;
+        this.bookingService = bookingService;
     }
 
     @PostMapping("/register")
@@ -40,9 +43,11 @@ public class AuthController {
         // Fresh session + rotated session id on every successful login, so a
         // session id issued before login (e.g. session fixation) can't be reused.
         HttpSession session = httpRequest.getSession(true);
-        httpRequest.changeSessionId();
+        String oldSessionId = session.getId();
+        String newSessionId = httpRequest.changeSessionId();
         session.setAttribute("userId", user.getId());
         session.setAttribute("role", user.getRole());
+        bookingService.transferHeldSeats(oldSessionId, newSessionId, user.getId());
 
         return ResponseEntity.ok(new AuthResponse(
                 user.getId(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getRole()));

@@ -5,6 +5,7 @@ import edu.uga.ces.dto.OrderTicketResponse;
 import edu.uga.ces.model.Order;
 import edu.uga.ces.model.Showtime;
 import edu.uga.ces.model.Ticket;
+import edu.uga.ces.exception.OrderNotFoundException;
 import edu.uga.ces.repository.OrderRepository;
 import edu.uga.ces.repository.ShowtimeRepository;
 import edu.uga.ces.repository.TicketRepository;
@@ -53,6 +54,15 @@ public class OrderHistoryService {
         return orders.stream()
                 .map(order -> toResponse(order, ticketsByOrder.getOrDefault(order.getId(), List.of())))
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public OrderHistoryResponse getOrderForUser(Long userId, String confirmationNumber) {
+        Order order = orderRepository
+                .findByConfirmationNumberAndUserId(confirmationNumber, userId)
+                .orElseThrow(() -> new OrderNotFoundException(confirmationNumber));
+        List<Ticket> tickets = ticketRepository.findByOrderIdOrderBySeatLabelAsc(order.getId());
+        return toResponse(order, tickets);
     }
 
     private OrderHistoryResponse toResponse(Order order, List<Ticket> tickets) {

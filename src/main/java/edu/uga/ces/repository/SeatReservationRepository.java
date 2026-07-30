@@ -2,6 +2,11 @@ package edu.uga.ces.repository;
 
 import edu.uga.ces.model.SeatReservation;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import jakarta.persistence.LockModeType;
 
 import java.util.List;
 
@@ -16,4 +21,15 @@ public interface SeatReservationRepository extends JpaRepository<SeatReservation
     // Clears a session's existing holds before re-holding a fresh selection.
     // A guest books one showtime at a time, so we drop all of their held seats.
     long deleteBySessionIdAndStatus(String sessionId, String status);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+            select reservation
+            from SeatReservation reservation
+            where reservation.sessionId = :sessionId and reservation.status = :status
+            order by reservation.id
+            """)
+    List<SeatReservation> findHeldBySessionIdForUpdate(
+            @Param("sessionId") String sessionId,
+            @Param("status") String status);
 }

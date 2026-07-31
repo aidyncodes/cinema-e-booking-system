@@ -2,10 +2,7 @@ package edu.uga.ces.service;
 
 import edu.uga.ces.dto.TicketLine;
 import edu.uga.ces.event.OrderConfirmationEvent;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -29,27 +26,21 @@ public class OrderConfirmationEmailService {
     private static final DateTimeFormatter TIME_FORMAT =
             DateTimeFormatter.ofPattern("h:mm a", Locale.US);
 
-    private final JavaMailSender mailSender;
-    private final String fromAddress;
+    private final OrderEmailGateway emailGateway;
 
-    public OrderConfirmationEmailService(JavaMailSender mailSender,
-                                         @Value("${app.mail.from}") String fromAddress) {
-        this.mailSender = mailSender;
-        this.fromAddress = fromAddress;
+    public OrderConfirmationEmailService(OrderEmailGateway emailGateway) {
+        this.emailGateway = emailGateway;
     }
 
     @TransactionalEventListener(
             phase = TransactionPhase.AFTER_COMMIT,
             fallbackExecution = true)
     public void sendOrderConfirmation(OrderConfirmationEvent order) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(fromAddress);
-        message.setTo(order.confirmationEmail());
-        message.setSubject("CES Cinema order " + order.confirmationNumber());
-        message.setText(buildMessage(order));
-
         try {
-            mailSender.send(message);
+            emailGateway.send(
+                    order.confirmationEmail(),
+                    "CES Cinema order " + order.confirmationNumber(),
+                    buildMessage(order));
         } catch (MailException ex) {
             // The purchase is already committed. Email failure must not turn a
             // successful paid order into an error response or duplicate order.

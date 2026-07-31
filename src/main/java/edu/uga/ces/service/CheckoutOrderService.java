@@ -42,13 +42,9 @@ import java.util.UUID;
 public class CheckoutOrderService {
 
     private static final BigDecimal TAX_RATE = new BigDecimal("0.08");
-    private static final Map<String, BigDecimal> PRICES = Map.of(
-            "ADULT", new BigDecimal("12.00"),
-            "SENIOR", new BigDecimal("8.00"),
-            "CHILD", new BigDecimal("6.00")
-    );
 
     private final CheckoutPaymentService checkoutPaymentService;
+    private final TicketPricingService ticketPricingService;
     private final SeatReservationRepository seatReservationRepository;
     private final ShowtimeRepository showtimeRepository;
     private final OrderRepository orderRepository;
@@ -58,6 +54,7 @@ public class CheckoutOrderService {
     private final ApplicationEventPublisher eventPublisher;
 
     public CheckoutOrderService(CheckoutPaymentService checkoutPaymentService,
+                                TicketPricingService ticketPricingService,
                                 SeatReservationRepository seatReservationRepository,
                                 ShowtimeRepository showtimeRepository,
                                 OrderRepository orderRepository,
@@ -66,6 +63,7 @@ public class CheckoutOrderService {
                                 UserRepository userRepository,
                                 ApplicationEventPublisher eventPublisher) {
         this.checkoutPaymentService = checkoutPaymentService;
+        this.ticketPricingService = ticketPricingService;
         this.seatReservationRepository = seatReservationRepository;
         this.showtimeRepository = showtimeRepository;
         this.orderRepository = orderRepository;
@@ -99,7 +97,7 @@ public class CheckoutOrderService {
 
         Instant placedAt = Instant.now();
         BigDecimal subtotal = held.stream()
-                .map(reservation -> priceFor(reservation.getTicketType()))
+                .map(reservation -> ticketPricingService.priceFor(reservation.getTicketType()))
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
         BigDecimal tax = subtotal.multiply(TAX_RATE).setScale(2, RoundingMode.HALF_UP);
@@ -126,7 +124,7 @@ public class CheckoutOrderService {
             ticket.setShowtimeId(showtimeId);
             ticket.setSeatLabel(reservation.getSeatLabel());
             ticket.setTicketType(reservation.getTicketType());
-            ticket.setUnitPrice(priceFor(reservation.getTicketType()));
+            ticket.setUnitPrice(ticketPricingService.priceFor(reservation.getTicketType()));
             tickets.add(ticket);
         }
         try {
@@ -194,14 +192,6 @@ public class CheckoutOrderService {
         );
     }
 
-    private BigDecimal priceFor(String ticketType) {
-        BigDecimal price = PRICES.get(ticketType);
-        if (price == null) {
-            throw new NoPendingBookingException();
-        }
-        return price;
-    }
-
     private List<TicketLine> summarizeTickets(List<Ticket> tickets) {
         Map<String, Integer> counts = new LinkedHashMap<>();
         List.of("ADULT", "SENIOR", "CHILD").forEach(type -> counts.put(type, 0));
@@ -210,7 +200,7 @@ public class CheckoutOrderService {
         return counts.entrySet().stream()
                 .filter(entry -> entry.getValue() > 0)
                 .map(entry -> {
-                    double price = priceFor(entry.getKey()).doubleValue();
+                    double price = ticketPricingService.priceFor(entry.getKey()).doubleValue();
                     return new TicketLine(
                             entry.getKey(), entry.getValue(), price, price * entry.getValue());
                 })

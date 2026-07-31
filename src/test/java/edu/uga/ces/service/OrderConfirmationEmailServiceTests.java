@@ -6,8 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.mail.MailSendException;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -16,7 +14,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -28,33 +25,28 @@ import static org.mockito.Mockito.verify;
 
 class OrderConfirmationEmailServiceTests {
 
-    private JavaMailSender mailSender;
+    private OrderEmailGateway emailGateway;
     private OrderConfirmationEmailService service;
 
     @BeforeEach
     void setUp() {
-        mailSender = mock(JavaMailSender.class);
-        service = new OrderConfirmationEmailService(
-                mailSender,
-                "no-reply@ces-cinema.test");
+        emailGateway = mock(OrderEmailGateway.class);
+        service = new OrderConfirmationEmailService(emailGateway);
     }
 
     @Test
     void sendsCompleteOrderReceiptWithoutFullCardData() {
         service.sendOrderConfirmation(order());
 
-        ArgumentCaptor<SimpleMailMessage> captor =
-                ArgumentCaptor.forClass(SimpleMailMessage.class);
-        verify(mailSender).send(captor.capture());
+        ArgumentCaptor<String> recipient = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> subject = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> body = ArgumentCaptor.forClass(String.class);
+        verify(emailGateway).send(recipient.capture(), subject.capture(), body.capture());
 
-        SimpleMailMessage message = captor.getValue();
-        assertEquals("no-reply@ces-cinema.test", message.getFrom());
-        assertArrayEquals(
-                new String[]{"customer@example.com"},
-                message.getTo());
-        assertEquals("CES Cinema order CES-20260729-0042", message.getSubject());
+        assertEquals("customer@example.com", recipient.getValue());
+        assertEquals("CES Cinema order CES-20260729-0042", subject.getValue());
 
-        String text = message.getText();
+        String text = body.getValue();
         assertNotNull(text);
         assertTrue(text.contains("Dune: Part Two"));
         assertTrue(text.contains("July 30, 2026"));
@@ -70,8 +62,8 @@ class OrderConfirmationEmailServiceTests {
     @Test
     void emailFailureDoesNotFailAlreadyCommittedOrder() {
         doThrow(new MailSendException("SMTP unavailable"))
-                .when(mailSender)
-                .send(any(SimpleMailMessage.class));
+                .when(emailGateway)
+                .send(any(String.class), any(String.class), any(String.class));
 
         assertDoesNotThrow(() -> service.sendOrderConfirmation(order()));
     }

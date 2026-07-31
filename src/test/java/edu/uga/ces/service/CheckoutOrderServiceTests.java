@@ -37,6 +37,7 @@ import static org.mockito.Mockito.when;
 class CheckoutOrderServiceTests {
 
     private CheckoutPaymentService paymentService;
+    private TicketPricingService ticketPricingService;
     private SeatReservationRepository reservationRepository;
     private ShowtimeRepository showtimeRepository;
     private OrderRepository orderRepository;
@@ -49,6 +50,7 @@ class CheckoutOrderServiceTests {
     @BeforeEach
     void setUp() {
         paymentService = mock(CheckoutPaymentService.class);
+        ticketPricingService = mock(TicketPricingService.class);
         reservationRepository = mock(SeatReservationRepository.class);
         showtimeRepository = mock(ShowtimeRepository.class);
         orderRepository = mock(OrderRepository.class);
@@ -58,6 +60,7 @@ class CheckoutOrderServiceTests {
         eventPublisher = mock(ApplicationEventPublisher.class);
         service = new CheckoutOrderService(
                 paymentService,
+                ticketPricingService,
                 reservationRepository,
                 showtimeRepository,
                 orderRepository,
@@ -65,6 +68,9 @@ class CheckoutOrderServiceTests {
                 transactionRepository,
                 userRepository,
                 eventPublisher);
+        when(ticketPricingService.priceFor("ADULT")).thenReturn(new BigDecimal("12.00"));
+        when(ticketPricingService.priceFor("SENIOR")).thenReturn(new BigDecimal("8.00"));
+        when(ticketPricingService.priceFor("CHILD")).thenReturn(new BigDecimal("6.00"));
     }
 
     @Test

@@ -31,19 +31,12 @@ import java.util.regex.Pattern;
 /**
  * Booking flow: build the seat map for a showtime, hold seats against the
  * current session, and produce the checkout order summary. Ticket prices are
- * constants for this sprint; taxes, fees, and promotions are out of scope.
+ * supplied by category-specific strategies.
  */
 @Service
 public class BookingService {
 
     private static final double TAX_RATE = 0.08;
-    // Age-category ticket prices. A reference table can replace this later.
-    private static final Map<String, Double> PRICES = Map.of(
-            "ADULT", 12.00,
-            "SENIOR", 8.00,
-            "CHILD", 6.00
-    );
-
     // Ticket types listed in the fixed order shown on the summary.
     private static final List<String> TICKET_TYPES = List.of("ADULT", "SENIOR", "CHILD");
 
@@ -52,13 +45,16 @@ public class BookingService {
     private final ShowtimeRepository showtimeRepository;
     private final SeatReservationRepository seatReservationRepository;
     private final TicketRepository ticketRepository;
+    private final TicketPricingService ticketPricingService;
 
     public BookingService(ShowtimeRepository showtimeRepository,
                           SeatReservationRepository seatReservationRepository,
-                          TicketRepository ticketRepository) {
+                          TicketRepository ticketRepository,
+                          TicketPricingService ticketPricingService) {
         this.showtimeRepository = showtimeRepository;
         this.seatReservationRepository = seatReservationRepository;
         this.ticketRepository = ticketRepository;
+        this.ticketPricingService = ticketPricingService;
     }
 
     @Transactional(readOnly = true)
@@ -164,7 +160,7 @@ public class BookingService {
             if (count == 0) {
                 continue;
             }
-            double price = PRICES.getOrDefault(type, 0.0);
+            double price = ticketPricingService.priceFor(type).doubleValue();
             double lineTotal = price * count;
             total += lineTotal;
             lines.add(new TicketLine(type, count, price, lineTotal));

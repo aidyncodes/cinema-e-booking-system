@@ -5,7 +5,8 @@
 1. Start the MySQL database:
 
 ```powershell
-docker compose -f "database/FinalDemo/docker-compose.yml" up -d
+cd database/FinalDemo
+docker compose up -d
 ```
 
 2. Configure Mailtrap SMTP credentials in the same terminal where you will start Spring Boot.

@@ -203,6 +203,23 @@
     gap: 12px;
 }
 
+.new-card-panel {
+    display: grid;
+    gap: 14px;
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--paper);
+}
+
+.new-card-panel h3 {
+    margin: 0;
+}
+
+.new-card-panel .checkout-help {
+    margin: -6px 0 2px;
+}
+
 .saved-card-option {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);

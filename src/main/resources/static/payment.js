@@ -8,6 +8,7 @@ const paymentSubmitError = document.getElementById("paymentSubmitError");
 
 let summary = null;
 let confirmationEmail = "";
+let requiresNewCard = false;
 
 function money(value) {
     return `$${Number(value || 0).toFixed(2)}`;
@@ -48,11 +49,14 @@ function renderSummary() {
 function renderCards(cards) {
     savedCards.replaceChildren();
     if (!cards.length) {
+        requiresNewCard = true;
         noCards.classList.remove("hidden");
-        placeOrderBtn.disabled = true;
+        placeOrderBtn.disabled = false;
         return;
     }
 
+    requiresNewCard = false;
+    noCards.classList.add("hidden");
     cards.forEach((card, index) => {
         const label = document.createElement("label");
         label.className = "saved-card-option";
@@ -78,7 +82,7 @@ function renderCards(cards) {
 async function handlePayment(event) {
     event.preventDefault();
     const selectedCard = paymentForm.querySelector('input[name="paymentCardId"]:checked');
-    if (!selectedCard) {
+    if (!selectedCard && !requiresNewCard) {
         paymentSubmitError.textContent = "Select a saved payment card.";
         return;
     }
@@ -87,10 +91,32 @@ async function handlePayment(event) {
     placeOrderBtn.textContent = "Processing...";
     paymentSubmitError.textContent = "";
     try {
+        let paymentCardId = selectedCard ? Number(selectedCard.value) : null;
+        if (requiresNewCard) {
+            const cardholderName = document.getElementById("newCardholderName").value.trim();
+            const cardNumber = document.getElementById("newCardNumber").value.trim();
+            const expirationMonth = Number(document.getElementById("newExpirationMonth").value);
+            const expirationYear = Number(document.getElementById("newExpirationYear").value);
+            if (!cardholderName || !cardNumber || !expirationMonth || !expirationYear) {
+                throw new Error("Enter the cardholder name, card number, expiration month, and expiration year.");
+            }
+            const newCard = await apiRequest("/api/profile/cards", {
+                method: "POST",
+                body: JSON.stringify({
+                    cardholderName,
+                    cardNumber,
+                    expirationMonth,
+                    expirationYear
+                })
+            });
+            paymentCardId = Number(newCard.id);
+            renderCards([newCard]);
+        }
+
         const order = await apiRequest("/api/checkout/payment", {
             method: "POST",
             body: JSON.stringify({
-                paymentCardId: Number(selectedCard.value),
+                paymentCardId,
                 confirmationEmail
             })
         });

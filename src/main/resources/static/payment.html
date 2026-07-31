@@ -43,12 +43,34 @@
     <div id="paymentContent" class="payment-layout hidden">
         <section class="checkout-card" aria-labelledby="paymentDetailsHeading">
             <h2 id="paymentDetailsHeading">Payment details</h2>
-            <p class="checkout-help">For security, checkout sends only the saved card ID. Full card numbers are never placed on an order.</p>
-            <form id="paymentForm">
+            <p class="checkout-help">Choose a saved card or securely enter one if your account has no saved payment method.</p>
+            <form id="paymentForm" class="payment-form">
                 <div id="savedCards" class="saved-card-list"></div>
-                <div id="noCards" class="checkout-alert hidden">
-                    No saved payment card is available.
-                    <a href="/profile.html">Add a card in your profile</a>, then return to payment.
+                <div id="noCards" class="new-card-panel hidden">
+                    <h3>Enter a payment card</h3>
+                    <p class="checkout-help">This card will be encrypted and saved to your profile for future checkout.</p>
+                    <label>
+                        Cardholder name
+                        <input id="newCardholderName" type="text" maxlength="150" autocomplete="cc-name">
+                    </label>
+                    <label>
+                        Card number
+                        <input id="newCardNumber" type="text" inputmode="numeric"
+                               autocomplete="cc-number" maxlength="23"
+                               placeholder="4111 1111 1111 1111">
+                    </label>
+                    <div class="payment-fields-row">
+                        <label>
+                            Expiration month
+                            <input id="newExpirationMonth" type="number" min="1" max="12"
+                                   autocomplete="cc-exp-month" placeholder="12">
+                        </label>
+                        <label>
+                            Expiration year
+                            <input id="newExpirationYear" type="number" min="2026" max="2100"
+                                   autocomplete="cc-exp-year" placeholder="2030">
+                        </label>
+                    </div>
                 </div>
                 <div id="paymentSubmitError" class="checkout-field-error" role="alert"></div>
                 <button id="placeOrderBtn" class="button checkout-submit" type="submit" disabled>Place Order</button>

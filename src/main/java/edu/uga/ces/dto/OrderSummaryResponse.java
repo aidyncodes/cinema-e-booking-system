@@ -11,6 +11,7 @@ import java.util.List;
 public record OrderSummaryResponse(
         Long showtimeId,
         String movieTitle,
+        String posterUrl,
         LocalDate showDate,
         LocalTime showTime,
         String showroomName,

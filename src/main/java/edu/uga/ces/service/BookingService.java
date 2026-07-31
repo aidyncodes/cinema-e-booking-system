@@ -112,6 +112,7 @@ public class BookingService {
 
         // A session holds one showtime at a time, so drop any earlier holds first.
         seatReservationRepository.deleteBySessionIdAndStatus(sessionId, SeatReservation.STATUS_HELD);
+        seatReservationRepository.flush();
 
         List<String> ticketTypePerSeat = assignTicketTypes(
                 request.adultCount(), request.seniorCount(), request.childCount());
@@ -182,6 +183,7 @@ public class BookingService {
         return new OrderSummaryResponse(
                 showtime.getId(),
                 showtime.getMovie().getTitle(),
+                showtime.getMovie().getPosterUrl(),
                 showtime.getShowDate(),
                 showtime.getShowTime(),
                 showtime.getShowroom().getName(),

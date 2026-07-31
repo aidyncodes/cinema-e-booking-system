@@ -57,7 +57,8 @@ function renderBooking() {
         showtime: showtimeText,
         showDate: summary.showDate,
         showTime: summary.showTime,
-        showroom: summary.showroomName
+        showroom: summary.showroomName,
+        poster: summary.posterUrl || ""
     });
     backToSeats.href = `/booking.html?${bookingParams}`;
 

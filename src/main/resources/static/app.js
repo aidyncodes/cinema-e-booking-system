@@ -17,6 +17,12 @@ const state = {
     activeTab: "now-playing"
 };
 
+const DATE_FILTER_LABELS = {
+    today: "Today",
+    tomorrow: "Tomorrow",
+    weekend: "This weekend"
+};
+
 function clearNode(node) {
     while (node.firstChild) {
         node.removeChild(node.firstChild);
@@ -24,7 +30,7 @@ function clearNode(node) {
 }
 
 function fetchJson(url) {
-    return fetch(url).then(response => {
+    return fetch(url, { credentials: "include" }).then(response => {
         if (!response.ok) {
             throw new Error(`Request failed: ${response.status}`);
         }
@@ -51,8 +57,13 @@ function setMessage(className, message) {
     movieSections.appendChild(element);
 }
 
+// Reflects whichever of genre/date are currently selected, ex
+// "Filters", "Action", "Today", or "Action * Today".
 function updateFilterSummary() {
-    filterSummary.textContent = genreFilter.value ? `Genre: ${genreFilter.value}` : "Filters";
+    const parts = [];
+    if (genreFilter.value) parts.push(genreFilter.value);
+    if (dateFilter.value) parts.push(DATE_FILTER_LABELS[dateFilter.value] || dateFilter.value);
+    filterSummary.textContent = parts.length ? parts.join(" · ") : "Filters";
 }
 
 function renderGenreOptions(genres) {
@@ -276,12 +287,15 @@ async function loadHome() {
     }
 }
 
-async function applyGenreFilter() {
+// Applies whichever of genre/date are currently selected together. Only
+// filters the "Now Playing" catalog 
+async function applyFilters() {
     const genre = genreFilter.value;
+    const date = dateFilter.value;
     searchInput.value = "";
     updateFilterSummary();
 
-    if (!genre) {
+    if (!genre && !date) {
         filterMenu.removeAttribute("open");
         renderHome();
         return;
@@ -289,11 +303,25 @@ async function applyGenreFilter() {
 
     setMessage("loading-state", "Loading movies...");
     try {
-        const movies = await fetchJson(`/api/movies?genre=${encodeURIComponent(genre)}`);
-        renderSingleSection(genre, movies, `Showing ${movies.length} ${movies.length === 1 ? "movie" : "movies"} in ${genre}.`);
+        const params = new URLSearchParams();
+        if (genre) params.set("genre", genre);
+        if (date) params.set("date", date);
+
+        const movies = await fetchJson(`/api/movies?${params.toString()}`);
+
+        const labelParts = [];
+        if (genre) labelParts.push(genre);
+        if (date) labelParts.push(DATE_FILTER_LABELS[date] || date);
+        const title = labelParts.join(" · ");
+
+        renderSingleSection(
+            title,
+            movies,
+            `Showing ${movies.length} ${movies.length === 1 ? "movie" : "movies"} for ${title}.`
+        );
         filterMenu.removeAttribute("open");
     } catch (error) {
-        setMessage("error-state", "Could not apply the genre filter.");
+        setMessage("error-state", "Could not apply the selected filters.");
     }
 }
 
@@ -301,6 +329,7 @@ async function runSearch(event) {
     event.preventDefault();
     const title = searchInput.value.trim();
     genreFilter.value = "";
+    dateFilter.value = "";
     updateFilterSummary();
 
     if (!title) {
@@ -327,14 +356,15 @@ function resetFilters() {
 }
 
 searchForm.addEventListener("submit", runSearch);
-genreFilter.addEventListener("change", applyGenreFilter);
-dateFilter.addEventListener("change", updateFilterSummary);
+genreFilter.addEventListener("change", applyFilters);
+dateFilter.addEventListener("change", applyFilters);
 clearFilters.addEventListener("click", resetFilters);
 
 tabNowPlaying.addEventListener("click", () => {
     setActiveTab("now-playing");
     searchInput.value = "";
     genreFilter.value = "";
+    dateFilter.value = "";
     updateFilterSummary();
     renderHome();
 });
@@ -343,6 +373,7 @@ tabComingSoon.addEventListener("click", () => {
     setActiveTab("coming-soon");
     searchInput.value = "";
     genreFilter.value = "";
+    dateFilter.value = "";
     updateFilterSummary();
     renderHome();
 });

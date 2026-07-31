@@ -7,7 +7,7 @@ function clearNode(node) {
 }
 
 function fetchJson(url) {
-    return fetch(url).then(response => {
+    return fetch(url, { credentials: "include" }).then(response => {
         if (!response.ok) {
             throw new Error(`Request failed: ${response.status}`);
         }

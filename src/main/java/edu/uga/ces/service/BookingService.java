@@ -21,6 +21,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,30 +33,38 @@ import java.util.regex.Pattern;
 /**
  * Booking flow: build the seat map for a showtime, hold seats against the
  * current session, and produce the checkout order summary. Ticket prices are
- * supplied by category-specific strategies.
+ * constants for this sprint; taxes, fees, and promotions are out of scope.
  */
 @Service
 public class BookingService {
 
     private static final double TAX_RATE = 0.08;
+    // Age-category ticket prices. A reference table can replace this later.
+    private static final Map<String, Double> PRICES = Map.of(
+            "ADULT", 12.00,
+            "SENIOR", 8.00,
+            "CHILD", 6.00
+    );
+
     // Ticket types listed in the fixed order shown on the summary.
     private static final List<String> TICKET_TYPES = List.of("ADULT", "SENIOR", "CHILD");
+
+    // How long a held seat stays reserved before SeatHoldCleanupJob can release
+    // it back to everyone else. 10 minutes is generous for filling out checkout.
+    static final Duration HOLD_DURATION = Duration.ofMinutes(10);
 
     private static final Pattern SEAT_LABEL = Pattern.compile("^([A-Z])(\\d+)$");
 
     private final ShowtimeRepository showtimeRepository;
     private final SeatReservationRepository seatReservationRepository;
     private final TicketRepository ticketRepository;
-    private final TicketPricingService ticketPricingService;
 
     public BookingService(ShowtimeRepository showtimeRepository,
                           SeatReservationRepository seatReservationRepository,
-                          TicketRepository ticketRepository,
-                          TicketPricingService ticketPricingService) {
+                          TicketRepository ticketRepository) {
         this.showtimeRepository = showtimeRepository;
         this.seatReservationRepository = seatReservationRepository;
         this.ticketRepository = ticketRepository;
-        this.ticketPricingService = ticketPricingService;
     }
 
     @Transactional(readOnly = true)
@@ -106,6 +116,7 @@ public class BookingService {
         List<String> ticketTypePerSeat = assignTicketTypes(
                 request.adultCount(), request.seniorCount(), request.childCount());
 
+        Instant expiresAt = Instant.now().plus(HOLD_DURATION);
         List<SeatReservation> holds = new ArrayList<>();
         for (int index = 0; index < seats.size(); index++) {
             SeatReservation reservation = new SeatReservation();
@@ -115,6 +126,7 @@ public class BookingService {
             reservation.setTicketType(ticketTypePerSeat.get(index));
             reservation.setSessionId(sessionId);
             reservation.setUserId(userId);
+            reservation.setExpiresAt(expiresAt);
             holds.add(reservation);
         }
 
@@ -160,7 +172,7 @@ public class BookingService {
             if (count == 0) {
                 continue;
             }
-            double price = ticketPricingService.priceFor(type).doubleValue();
+            double price = PRICES.getOrDefault(type, 0.0);
             double lineTotal = price * count;
             total += lineTotal;
             lines.add(new TicketLine(type, count, price, lineTotal));

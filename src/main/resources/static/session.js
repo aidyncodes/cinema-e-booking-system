@@ -1,4 +1,3 @@
-
 const CURRENT_USER_KEY = "ces_current_user";
 
 function getCurrentUser() {
@@ -25,6 +24,12 @@ function isLoggedIn() {
 async function apiRequest(url, options = {}) {
     const response = await fetch(url, {
         headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+        // Without this, the browser won't send/accept the session cookie when
+        // the frontend and backend are on different origins (e.g. a frontend
+        // dev server on :5173 talking to the backend on :8080) - see
+        // SecurityConfig's CORS setup, which allows exactly this and already
+        // expects the frontend to opt in with credentials: 'include'.
+        credentials: "include",
         ...options
     });
 
@@ -48,7 +53,7 @@ async function apiRequest(url, options = {}) {
 
 async function logout() {
     try {
-        await fetch("/api/auth/logout", { method: "POST" });
+        await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
     } catch (error) {
         // Still clear local state even if the network call failed.
     }

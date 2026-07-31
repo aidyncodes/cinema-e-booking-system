@@ -21,13 +21,12 @@ public class MovieController {
         this.showtimeService = showtimeService;
     }
 
-    // Home page
+    // Home page. genre and date are both optional filters and combine when
+    // both are present (date accepts "today", "tomorrow", or "weekend").
     @GetMapping
-    public List<MovieSummary> getCurrentlyRunning(@RequestParam(required = false) String genre) {
-        if (genre == null || genre.isBlank()) {
-            return movieService.getCurrentlyRunning();
-        }
-        return movieService.getCurrentlyRunningByGenre(genre);
+    public List<MovieSummary> getCurrentlyRunning(@RequestParam(required = false) String genre,
+                                                   @RequestParam(required = false) String date) {
+        return movieService.getCurrentlyRunning(genre, date);
     }
 
     // home page: coming soon section

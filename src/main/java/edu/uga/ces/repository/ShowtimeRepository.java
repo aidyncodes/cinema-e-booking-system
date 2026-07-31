@@ -32,4 +32,9 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Long> {
             order by s.showDate, s.showTime, s.showroom.name
             """)
     List<Showtime> findAllByMovieId(@Param("movieId") Long movieId);
+
+    // Used by the homepage's "Show date" filter: which movies have at least
+    // one showtime on one of the given dates (today / tomorrow / this weekend).
+    @Query("select distinct s.movie.id from Showtime s where s.showDate in :dates")
+    List<Long> findDistinctMovieIdsByShowDateIn(@Param("dates") List<LocalDate> dates);
 }

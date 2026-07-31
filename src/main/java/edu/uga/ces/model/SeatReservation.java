@@ -54,6 +54,12 @@ public class SeatReservation {
     @Column(name = "held_at", insertable = false, updatable = false)
     private Instant heldAt;
 
+    // The column existed in the schema from the start, but nothing set or read
+    // it: holds never expired. BookingService now sets this when a hold is
+    // created, and SeatHoldCleanupJob deletes rows once it's passed.
+    @Column(name = "expires_at")
+    private Instant expiresAt;
+
     public Long getId() {
         return id;
     }
@@ -112,5 +118,13 @@ public class SeatReservation {
 
     public Instant getHeldAt() {
         return heldAt;
+    }
+
+    public Instant getExpiresAt() {
+        return expiresAt;
+    }
+
+    public void setExpiresAt(Instant expiresAt) {
+        this.expiresAt = expiresAt;
     }
 }

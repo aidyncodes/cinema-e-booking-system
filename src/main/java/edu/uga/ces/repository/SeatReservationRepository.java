@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import jakarta.persistence.LockModeType;
 
+import java.time.Instant;
 import java.util.List;
 
 public interface SeatReservationRepository extends JpaRepository<SeatReservation, Long> {
@@ -32,4 +33,9 @@ public interface SeatReservationRepository extends JpaRepository<SeatReservation
     List<SeatReservation> findHeldBySessionIdForUpdate(
             @Param("sessionId") String sessionId,
             @Param("status") String status);
+
+    // Used by SeatHoldCleanupJob to release seats nobody finished checking out
+    // on. Only ever matches HELD rows, since BOOKED seats are removed by the
+    // checkout flow itself once they become permanent tickets.
+    long deleteByStatusAndExpiresAtBefore(String status, Instant cutoff);
 }
